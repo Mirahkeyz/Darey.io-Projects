@@ -50,3 +50,7 @@ In Snipe 12 i used the tail command to display the last lines of the readme.txt 
 
 ![Snipe 12](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a646244b-2be5-430f-8268-746885a2fd5a)
 
+In Snipe 13 i used the uname -a command to give me the information about my linux system.
+
+![image](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5a3d5dde-196a-4e43-983f-6a7c9707d805)
+

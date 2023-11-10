@@ -12,6 +12,10 @@ In Snipe 3 i continued by typing the command mkdir which means to create another
 
 ![Snipe 3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ce60674b-1d84-43c9-99fc-e9897cbe77ea)
 
-In snipe 4 i typed ls to see the list then i typed cd Devops_folder to get into its directory then i typed cd dareyio to get into its own directory then i typed the command called rm to delete the file called devOps inside the dareyio then i typed ls i couldnt see the file anymore then i typed cd to get back home then i typed the command called rm -r Devops_folder/dareyio to delete the folder called dareyio then i cd into Devops_folder then typed ls to see if i will see the folder called dareyio but i didnt see it.
+In Snipe 4 i typed ls to see the list then i typed cd Devops_folder to get into its directory then i typed cd dareyio to get into its own directory then i typed the command called rm to delete the file called devOps inside the dareyio then i typed ls i couldnt see the file anymore then i typed cd to get back home then i typed the command called rm -r Devops_folder/dareyio to delete the folder called dareyio then i cd into Devops_folder then typed ls to see if i will see the folder called dareyio but i didnt see it.
 
 ![Snipe 4](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f8c10265-4c29-4984-a916-9d1b87425b67)
+
+In Snipe 5 i copied the file called devOps to the folder called Devops_folder then i used the find command to check if such file exist in that folder so i typed find Devops_folder -name devOps.
+
+![Snipe 5](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5f395e98-41a3-412e-8704-d0043090cc1c)

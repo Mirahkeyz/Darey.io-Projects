@@ -58,3 +58,8 @@ In Snipe 14 i used the top command to display all the running processes in the s
 
 ![Snipe 14](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/58cb52f4-211e-43b7-ba56-0034bcbe7a04)
 
+
+In Snipe 15 i used the ping command to check if my Ip address is reachable.
+
+![Snipe 15](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/aa01d3a2-5d3b-4659-a4d1-c1dab7475c63)
+

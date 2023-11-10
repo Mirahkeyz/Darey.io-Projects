@@ -27,3 +27,7 @@ In Snipe 6 i used the command df -h to check the system disk space usage.
 In Snipe 7 i used the du command to check how much space the Devops_folder takes up.
 
 ![Snipe 7](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a91b8e41-d7b1-4fe8-9ba3-c743980f16af)
+
+In Snipe 8 i used the cat command to see the content of readme.txt.
+
+![Snipe 8](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/3066a280-d622-482d-8f72-288e5e7ac5d9)

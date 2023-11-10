@@ -41,7 +41,12 @@ In Snipe 10 i used the echo command to create a line of text.
 
 ![Snipe 10](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0dd9747a-ad51-49dc-bf11-6479182644cc)
 
-In Snipe 11 i used the head command to view the first lines of code.
+In Snipe 11 i used the head command to view the first lines of the readme.txt file.
 
 ![Snipe 11](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/96d70644-ea5f-4d59-a688-1d4aea4d7926)
+
+
+In Snipe 12 i used the tail command to display the last lines of the readme.txt file.
+
+![Snipe 12](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a646244b-2be5-430f-8268-746885a2fd5a)
 

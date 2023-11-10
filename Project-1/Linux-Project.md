@@ -23,3 +23,7 @@ In Snipe 5 i copied the file called devOps to the folder called Devops_folder th
 In Snipe 6 i used the command df -h to check the system disk space usage.
 
 ![Snipe 6](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ed66c9d4-d806-40ca-8ce6-54524e34df88)
+
+In Snipe 7 i used the du command to check how much space the Devops_folder takes up.
+
+![Snipe 7](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a91b8e41-d7b1-4fe8-9ba3-c743980f16af)

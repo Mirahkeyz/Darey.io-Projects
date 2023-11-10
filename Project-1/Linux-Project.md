@@ -31,3 +31,8 @@ In Snipe 7 i used the du command to check how much space the Devops_folder takes
 In Snipe 8 i used the cat command to see the content of readme.txt.
 
 ![Snipe 8](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/3066a280-d622-482d-8f72-288e5e7ac5d9)
+
+In Snipe 9 i used the history command to see the commands i typed previously so i was able to screenshot it
+
+![Snipe 9](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ba3f1ad5-6583-43fa-b3e4-a8198ff8d4b0)
+

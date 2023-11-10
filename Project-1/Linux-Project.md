@@ -54,3 +54,7 @@ In Snipe 13 i used the uname -a command to give me the information about my linu
 
 ![image](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5a3d5dde-196a-4e43-983f-6a7c9707d805)
 
+In Snipe 14 i used the top command to display all the running processes in the system.
+
+![Snipe 14](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/58cb52f4-211e-43b7-ba56-0034bcbe7a04)
+

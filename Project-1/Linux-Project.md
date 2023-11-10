@@ -19,3 +19,7 @@ In Snipe 4 i typed ls to see the list then i typed cd Devops_folder to get into 
 In Snipe 5 i copied the file called devOps to the folder called Devops_folder then i used the find command to check if such file exist in that folder so i typed find Devops_folder -name devOps.
 
 ![Snipe 5](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5f395e98-41a3-412e-8704-d0043090cc1c)
+
+In Snipe 6 i used the command df -h to check the system disk space usage.
+
+![Snipe 6](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ed66c9d4-d806-40ca-8ce6-54524e34df88)

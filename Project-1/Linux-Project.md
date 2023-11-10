@@ -36,3 +36,8 @@ In Snipe 9 i used the history command to see the commands i typed previously so 
 
 ![Snipe 9](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ba3f1ad5-6583-43fa-b3e4-a8198ff8d4b0)
 
+
+In Snipe 10 i used the echo command to create a line of text.
+
+![Snipe 10](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0dd9747a-ad51-49dc-bf11-6479182644cc)
+

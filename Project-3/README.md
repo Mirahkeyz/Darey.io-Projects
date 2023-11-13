@@ -71,6 +71,66 @@ Exit from the MySQL terminal by typing the following command
 
 $ mysql> exit
 
+# STEP 4: INSTALLING PHP AND ITS MODULES
+
+We need to install php alongside its modules, php-mysql which is php module that allows php to communicate with the mysql database, libapache2-mod-php which ensures that the apache web server handles the php contents properly.
+
+$ sudo apt install php php-mysql libapache2-mod-php
+
+![Snipe 11](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/e52a0bea-669f-41ba-aef2-f5b83eae4a6d)
+
+On successfull installation of php and its modules we can check the version to see if it was properly installed.
+
+$ php -v
+
+![Snipe 12](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/55c4104f-e3a2-4d98-95d5-06a95c25a208)
+
+At this point our Lamp Stack is completely installed and fully operational
+
+# STEP 5: DEPLOYING OUR WEBSITE ON APACHE'S VIRTUAL HOST
+
+We will use Apache's virtual hosting feature to set up a virtual host so that we can deploy our web content on the web server. Apache's virtual hosting allows multiple websites to run on the same web server using different IP addresses.
+
+First of all we will create a domain and give it a domain of our choice. i will call mine projectlamp
+
+Create the projectlamp directory using the 'mkdir' command as follows:
+
+$ sudo mkdir /var/www/projectlamp
+
+Next, we assign ownership of the directory using $USER environment variable
+
+$ sudo chown -R $USER:$USER /var/www/projectlamp
+
+![Snipe 13](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/4781c33f-1756-4207-82b7-3e4919f95ee6)
+
+Then create and open a new configuration file in Apache's sites-available directory using the vim editor
+
+$ sudo vi /etc/apache2/sites-available/projectlamp.conf
+
+![Snipe 14](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7cc5fbbc-5450-4db2-a9ba-bf7c0bd60deb)
+
+Run esc :wq  to save and terminate vi editor.
+
+Run sudo a2ensite projectlampstack to activate the server block.
+
+Run sudo a2dissite 000-default to deactivate the default webserver block that comes with apache on default.
+
+Reload the apache2 server sudo systemctl reload apache2
+
+![Snipe 15](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/2b6a8f61-359e-445c-a5e0-2e01d80717c4)
+
+Create an index.html file inside the /var/www/projectlampstack
+
+sudo echo 'Hello LAMP from hostname' $(curl -s http://169.254.169.254/latest/meta-data/public-hostname) 'with public IP' $(curl -s http://169.254.169.254/latest/meta-data/public-ipv4) > /var/www/projectlamp/index.html
+
+![Snipe 17](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/fcafdace-399f-4d31-b7e8-50007589e7d3)
+
+Now go to your browser and try to open your website URL using the IP address:
+
+http://<Public-IP-Address>:80
+
+if you see the text from 'echo' command you wrote to index.html file, then it means your Apache virtual host is working as expected.
+
 
 
 

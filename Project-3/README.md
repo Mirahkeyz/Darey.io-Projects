@@ -164,6 +164,7 @@ phpinfo();
 
 Go to your web browser and reload the instance public ip address
 
-![Snipe 20](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7d0c7b53-56da-4878-9349-b98dc87714b6)
+![Snipe 20](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/3635e498-a9c8-4f1c-98db-fd8f3c76e4b5)
+
 
 

@@ -131,7 +131,39 @@ http://<Public-IP-Address>:80
 
 if you see the text from 'echo' command you wrote to index.html file, then it means your Apache virtual host is working as expected.
 
+![Snipe 18](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/d8b44f83-c5b9-44ff-acc2-e4ddc2305d9f)
 
 
+# STEP 6: ENABLE PHP ON THE WEBSITE
+
+By default, the web server will try to serve an index.html file before an index.php file. To change this, you need to edit the /etc/apache2/mods-enabled/dir.conf file and move the index.php file to the beginning of the DirectoryIndex list.
+
+$ sudo vim /etc/apache2/mods-enabled/dir.conf
+
+<IfModule mod_dir.c>
+        #Change this:
+        #DirectoryIndex index.html index.cgi index.pl index.php index.xhtml index.htm
+        #To this:
+        DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm
+</IfModule>
+
+![Snipe 19](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/36c22c35-233c-4c74-abf7-d1ffd9b2f467)
+
+After saving and closing this file, you will need to reload Apache so the changes can take effect
+
+$ sudo systemctl reload apache2
+
+Create an index.php file in our webserver block and add the following code using the vim editor
+
+$ vim /var/www/projectlamp/index.php
+
+This will open a blank file, add the following code
+
+<?php
+phpinfo();
+
+Go to your web browser and reload the instance public ip address
+
+![Snipe 20](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7d0c7b53-56da-4878-9349-b98dc87714b6)
 
 

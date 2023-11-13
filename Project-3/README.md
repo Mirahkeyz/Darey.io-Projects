@@ -140,12 +140,14 @@ By default, the web server will try to serve an index.html file before an index.
 
 $ sudo vim /etc/apache2/mods-enabled/dir.conf
 
+
 <IfModule mod_dir.c>
         #Change this:
         #DirectoryIndex index.html index.cgi index.pl index.php index.xhtml index.htm
         #To this:
         DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm
 </IfModule>
+
 
 ![Snipe 19](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/36c22c35-233c-4c74-abf7-d1ffd9b2f467)
 

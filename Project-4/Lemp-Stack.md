@@ -43,7 +43,32 @@ sudo mysql
 
 To create a root password run the code below
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'PassWord.1';
+Then exit the mysql shell
+
+Next start the interactive script by typing 
+
+ sudo mysql_secure_installation
 
 ![Snipe 8](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/de2842bc-702f-46b4-9c40-8b65a3c3eafa)
+
+
+# STEP 4: Installing PHP And Its Modules
+
+To install PHP run:
+ sudo apt install php-fpm php-mysql
+
+![Snipe 9](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5984769a-bfc7-4ac1-b119-01e0fd8e0580)
+
+Creating a Web Server Block For our Web Application:
+
+To serve our webcontent on our webserver, we create a directory for our project inside the /var/www/ directory.
+sudo mkdir /var/www/projectLEMP Then we change permissions of the projectLEMP directory to the current user system by running sudo chown -R $USER:$USER /var/www/projectLEMP
+
+![Snipe 11](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ff377e6c-df17-4699-8e7d-547fa8e99436)
+
+
+
+
+
 
 

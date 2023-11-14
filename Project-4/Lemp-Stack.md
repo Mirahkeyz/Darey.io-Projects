@@ -66,9 +66,43 @@ sudo mkdir /var/www/projectLEMP Then we change permissions of the projectLEMP di
 
 ![Snipe 11](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ff377e6c-df17-4699-8e7d-547fa8e99436)
 
+Creating a configuration for our server block:
+sudo nano /etc/nginx/sites-available/projectLEMP
+
+The following snippets represents the configuration required for our web server block to be functional
+
+#/etc/nginx/sites-available/projectLEMP
+
+server {
+    listen 80;
+    server_name projectLEMP www.projectLEMP;
+    root /var/www/projectLEMP;
+
+    index index.html index.htm index.php;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
+     }
+
+    location ~ /\.ht {
+        deny all;
+    }
+
+}
 
 
+Then we link the configuration file to the sites-enabled directory
 
+sudo ln -s /etc/nginx/sites-available/projectLEMP /etc/nginx/sites-enabled
 
+To test our configuration for errors we run
+sudo nginx -t
+
+![Snipe 12](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/1b5999e5-9fb8-4472-b08a-50b06261f0c9)
 
 

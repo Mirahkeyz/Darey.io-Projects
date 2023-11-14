@@ -114,11 +114,22 @@ Create an index.html file inside projectLEMP directory and write in contents to 
 # STEP 5: Testing PHP with Nginx
 
 Create an info.php file inside the /var/www/projectLEMP then On a browser enter http://<public-ip>/info.php
+
 Run nano /var/www/projectLEMP/info.php
+
 Next a blank page will display then put the code below
+
 <?php
 phpinfo();
 
-
 ![Snipe 14](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/8048da68-7e23-46a7-8377-830bd26d16db)
+
+
+
+
+
+
+
+
+
 

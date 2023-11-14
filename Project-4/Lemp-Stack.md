@@ -105,4 +105,20 @@ sudo nginx -t
 
 ![Snipe 12](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/1b5999e5-9fb8-4472-b08a-50b06261f0c9)
 
+Currently our new server block has been created and configured but currently the default server block is the default block that comes with nginx install. To unlink it we Run sudo unlink /etc/sites-available/default.
+
+Create an index.html file inside projectLEMP directory and write in contents to be accessed over the internet. Paste public IP address on a browser to see content.
+
+![Snipe 13](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/011a54a1-f0cd-4d2b-a6b3-1ac193e8ce80)
+
+# STEP 5: Testing PHP with Nginx
+
+Create an info.php file inside the /var/www/projectLEMP then On a browser enter http://<public-ip>/info.php
+Run nano /var/www/projectLEMP/info.php
+Next a blank page will display then put the code below
+<?php
+phpinfo();
+
+
+![Snipe 14](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/8048da68-7e23-46a7-8377-830bd26d16db)
 

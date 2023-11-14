@@ -22,3 +22,16 @@ After it has installed, Run sudo systemctl status nginx to confirm that nginx is
 
 ![Snipe 3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/6b0966b5-4923-4b8b-a81c-53c4747abf93)
 
+To access our server locally on the ubuntu shell, Run curl://http:localhost:80 or curl://http:127.0.0.1:80 
+
+![Snipe 4](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/edc7dbb0-2330-4ffa-806f-c4b9450c202e)
+
+To check if we can access the default server block over the internet on our local machine, insert the public IP address of the server on a browser.
+
+![Snipe 5](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/3c2d6023-9786-4505-8d40-5bb0f995a9b2)
+
+# STEP 3: Installing MySql
+
+To install mysql on the ubuntu shell Run sudo apt install mysql-server
+
+![Snipe 6](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0e510cad-c990-494d-b6b4-5025ed244f78)

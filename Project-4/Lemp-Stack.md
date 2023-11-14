@@ -35,3 +35,15 @@ To check if we can access the default server block over the internet on our loca
 To install mysql on the ubuntu shell Run sudo apt install mysql-server
 
 ![Snipe 6](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0e510cad-c990-494d-b6b4-5025ed244f78)
+
+When the installation is finished, log into the mysql console by typing:
+sudo mysql
+
+![Snipe 7](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/246c88da-75c9-49fb-9e73-739430dbbac2)
+
+To create a root password run the code below
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'PassWord.1';
+
+![Snipe 8](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/de2842bc-702f-46b4-9c40-8b65a3c3eafa)
+
+

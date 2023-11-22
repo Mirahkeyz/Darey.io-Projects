@@ -33,3 +33,26 @@ $ hostname server for the server.
 we disconnect and reconnect to the instances for these changes to take effect.
 
 ![Snipe 2](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/2ffeb247-f314-4b5d-af78-e62f44f3d63d)
+
+On the client and server terminals we run the command:
+
+sudo apt update
+
+![Snipe 3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7658e7fa-c2dd-4a55-869e-74a9f9a37d6e)
+
+
+On the server terminal, we install the mysql server.
+
+sudo apt install mysql-server
+
+and on the client terminal, we install the mysql client
+
+sudo apt install mysql-client
+
+![Snipe 4](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/36068971-e6b8-4433-aba3-5276275d0595)
+
+We verify the status of mysql by running the command:
+
+sudo systemctl status mysql
+
+![Snipe 5](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/9b22d20a-caad-4687-9f2e-eb30b31db4cb)

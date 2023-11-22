@@ -115,3 +115,33 @@ To give this user (i.e 'test_user') permission over the 'test_database' database
 mysql> GRANT ALL ON test_database.* TO 'test_user'@'%';
 
 Then, we exit the mysql shell.
+
+![Snipe 10](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/53faf7cb-3b0b-455f-ab7f-9600e534bb79)
+
+
+![Snipe 11](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0ea36e65-d44a-43bf-8937-edb21e71aac8)
+
+To test if the new user has the proper permissions by logging in to the MySQL console again, this time using the custom user credentials:
+
+$ mysql -u test-user -p
+
+at the prompt, we put in our password (i.e PassWord.1). then run the command:
+
+![Snipe 12](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7f4a5112-1b1c-4e64-adca-399b99f52dd2)
+
+mysql> SHOW DATABASES;
+
+
+We then go to our client terminal and connect to the mysql server database engine remotely without using the SSH.
+
+$ mysql -u test_user -h <IP-address> -p
+
+At the prompt we put in our password.
+
+then run the command
+
+mysql> SHOW DATABASES;
+
+![Snipe 13](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/da84b152-d250-4b50-aad9-c017aa4f863e)
+
+

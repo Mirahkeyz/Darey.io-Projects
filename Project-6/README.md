@@ -94,3 +94,24 @@ At the prompt we put in the password we specified earlier i.e PassWord.1. To cre
 
 ![Snipe 8](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/e82fc4eb-2502-4948-9381-ce962f0ad066)
 
+
+When you’re finished, log in to the MySQL console by typing:
+
+sudo mysql -p
+
+![Snipe 9](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/4ca0053c-f6bd-4595-ade2-c0bac60bf351)
+
+
+To create a new database, run the following command from your MySQL console:
+
+$ mysql> CREATE DATABASE test_database;
+
+Now you can create a new user and grant him full privileges on the database you have just created.
+
+mysql> CREATE USER 'test_user'@'%' IDENTIFIED WITH mysql_native_password BY 'PassWord.1';
+
+To give this user (i.e 'test_user') permission over the 'test_database' database:
+
+mysql> GRANT ALL ON test_database.* TO 'test_user'@'%';
+
+Then, we exit the mysql shell.

@@ -56,3 +56,41 @@ We verify the status of mysql by running the command:
 sudo systemctl status mysql
 
 ![Snipe 5](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/9b22d20a-caad-4687-9f2e-eb30b31db4cb)
+
+
+By default, both of the EC2 virtual servers are located in the same local virtual network, so they can communicate to each other using local IP addresses. MySQL server uses TCP port 3306 by default, so you will have to open it by creating a new entry in ‘Inbound rules’ in ‘mysql server’ Security Groups. For extra security, do not allow all IP addresses to reach your ‘mysql server’ – allow access only to the specific local IP address of your ‘mysql client’. take ur mysql client private ip and add it as you are editing the inbound rules of mysql server
+
+![Snipe 6](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c76e4369-521a-4f54-9398-8006e10c7e3a)
+
+
+We need to configure MySQL server to allow connections from remote hosts.
+
+sudo vi /etc/mysql/mysql.conf.d/mysqld.cnf
+
+then
+
+Replace "bind-address" ‘127.0.0.1’ to ‘0.0.0.0’ 
+
+comment mysqlx-bind-address like this # mysqlx-bind-address
+
+![Snipe 7](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/920e5d0b-b37b-44db-9d14-b341eb27deea)
+
+
+To set up the mysql database in server that the client will be able to connect to, we run the following commands:
+
+$ sudo mysql
+
+this lauches us into the mysql database.
+
+Next we run the command:
+
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'PassWord.1';
+
+we exit. Start the interactive script by running:
+
+$ sudo mysql_secure_installation
+
+At the prompt we put in the password we specified earlier i.e PassWord.1. To create a validated password, type y. Then choose the strength of the new password you want to create-at the prompt, we put in the new password.
+
+![Snipe 8](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/e82fc4eb-2502-4948-9381-ce962f0ad066)
+

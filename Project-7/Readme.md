@@ -68,3 +68,62 @@ sudo cp -f ./index.html /var/www/html/index.html
 sudo systemctl restart apache2
 
 ![Snipe 6](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/56ac2436-c358-4ab6-94a1-129f22d0e2e3)
+
+
+# STEP 5: Configuring Nginx as a Loadbalancer
+
+  - Launch a new EC2 Instance running ubuntu 22.04. Make sure port 80 is open to run traffic from Anywhere.
+
+    ![Snipe 7](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/4bc30b34-d5bd-4615-a5d0-36dc777f58ea)
+
+  - Next SSH into the instance
+
+    - Install Nginx using the code below
+   
+      sudo apt update -y && sudo apt install nginx -y
+
+     - Verify that Nginx is Installed
+
+       sudo systemctl status nginx
+
+       ![Snipe 8](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/8f2c0aa7-6311-4a28-8e24-11da0867ffbf)
+
+       - Open Nginx configuration file with the following command
+      
+         sudo vi /etc/nginx/conf.d/loadbalancer.conf
+
+          - Paste the configuration file below and edit where necessary to make Nginx to act as a Loadbalancer
+        
+                    
+        upstream backend_servers {
+
+            # your are to replace the public IP and Port to that of your webservers
+            server 127.0.0.1:8000; # public IP and port for webserser 1
+            server 127.0.0.1:8000; # public IP and port for webserver 2
+
+        }
+
+        server {
+            listen 80;
+            server_name <your load balancer's public IP addres>; # provide your load balancers public IP address
+
+            location / {
+                proxy_pass http://backend_servers;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            }
+        }
+    
+![Snipe 9](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/e027033f-dd63-4e17-89d5-cfe23c0fe2ca)
+
+
+- Test your configuration with the code below
+
+  sudo nginx -t
+
+- Restart Nginx to load the configuration
+
+  sudo systemctl restart nginx
+
+

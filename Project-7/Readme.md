@@ -18,7 +18,7 @@ sudo systemctl status apache2
 
 ![Snipe 2](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/3cafe3de-b776-4d7f-97e1-403c046eee08)
 
-# STEP 4: Configure Apache
+# STEP 3: Configure Apache
 
 - we will start by configuring Apache webserver to serve content on port 8000 instead of its default port which is port 80
   Type sudo vi /etc/apache2/ports.conf
@@ -70,7 +70,7 @@ sudo systemctl restart apache2
 ![Snipe 6](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/56ac2436-c358-4ab6-94a1-129f22d0e2e3)
 
 
-# STEP 5: Configuring Nginx as a Loadbalancer
+# STEP 4: Configuring Nginx as a Loadbalancer
 
   - Launch a new EC2 Instance running ubuntu 22.04. Make sure port 80 is open to run traffic from Anywhere.
 

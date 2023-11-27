@@ -64,9 +64,7 @@ paste the script above in this opened file, then save and close the file with th
 sudo chmod +x install.sh
 
 6. Then Run the shell script using the command below for both servers:
-./install.sh 40.89.104.163
-
-./install.sh 20.153.132.173
+./install.sh PUBLIC_IP
 
 ![Snipe 2](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/4590b393-9b41-44ce-8212-fe9018fdf6c8)
 

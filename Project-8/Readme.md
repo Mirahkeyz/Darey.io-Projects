@@ -4,7 +4,6 @@
 
 All the process we need to deploy our webserver has been codified in the shell script below:
 
-
 ####################################################################################################################
 ##### This automates the installation and configuring of apache webserver to listen on port 8000
 ##### Usage: Call the script and pass in the Public_IP of your EC2 instance as the first argument as shown below:
@@ -45,7 +44,6 @@ echo "<!DOCTYPE html>
 
 sudo systemctl restart apache2
 
-
 we followed the below steps to run the script.
 
 1. provision an EC2 instance running ubuntu 20.04.
@@ -58,15 +56,19 @@ we followed the below steps to run the script.
 
 sudo vi install.sh
 
+![Snipe 1](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/9978dea3-6466-4e2b-9ac5-6f6ecec7f00b)
+
 paste the script above in this opened file, then save and close the file with the command after using esc. You save and close with shift + :wqa!
 
 5. Change the permission of the file to make it executable.
 sudo chmod +x install.sh
 
-6. The Run the shell script using the command below for both servers:
+6. Then Run the shell script using the command below for both servers:
 ./install.sh 40.89.104.163
 
 ./install.sh 20.153.132.173
+
+![Snipe 2](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/4590b393-9b41-44ce-8212-fe9018fdf6c8)
 
 # Step 2: CONFIGURING AND INSTALLING THE NGINX LOAD BALANCER
 
@@ -129,8 +131,6 @@ sudo nginx -t
 
 sudo systemctl restart nginx
 
-
-
 Steps to run the shell script
 
 1: Open a file named nginx.sh
@@ -143,6 +143,9 @@ sudo vi nginx.sh
 
 shift + :wqa!
 
+![Snipe 3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a77c0464-8667-4af2-b9a2-5230553eaacd)
+
+
 4: Change the permission for the file to be executed
 
 sudo chmod +x nginx.sh
@@ -151,6 +154,5 @@ sudo chmod +x nginx.sh
 
 ./nginx.sh PUBLIC_IP webserver-1 webserver-2
 
-This will be exactly like this below:
+![Snipe 4](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a43bf6fc-a8c3-4e74-80fc-bccc50feeee0)
 
-./nginx.sh 40.159.109.168 54.89.104.163:8000 20.153.132.173:8000

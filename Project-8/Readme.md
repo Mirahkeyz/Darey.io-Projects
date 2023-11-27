@@ -64,6 +64,9 @@ paste the script above in this opened file, then save and close the file with th
 
 sudo chmod +x install.sh
 
+![Snipe 5](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/b0e43fa1-f647-4fa1-83ac-c1765cd4efb4)
+
+
 6. Then Run the shell script using the command below for both servers:
    
 ./install.sh PUBLIC_IP
@@ -150,9 +153,20 @@ shift + :wqa!
 
 sudo chmod +x nginx.sh
 
+![Snipe 6](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/67956655-ff62-446f-accd-218bba0e3496)
+
 5: Then run the file as below:
 
 ./nginx.sh PUBLIC_IP webserver-1 webserver-2
 
 ![Snipe 4](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a43bf6fc-a8c3-4e74-80fc-bccc50feeee0)
+
+verify if the set up work on any web browser with the ip adresses
+
+![Snipe 7](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/2e14374f-5cc7-4060-9e93-cb4c8302a41a)
+
+![Snipe 8](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/d20b3263-fd79-4b64-9630-35df5c055d15)
+
+![Snipe 9](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0c47ceca-85a8-4bc3-afb5-69fcc544c859)
+
 

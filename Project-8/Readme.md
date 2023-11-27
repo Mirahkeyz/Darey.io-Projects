@@ -37,7 +37,7 @@ echo "<!DOCTYPE html>
             <title>My EC2 Instance</title>
         </head>
         <body>
-            <h1>Welcome to my EC2 instance</h1>
+            <h1>my EC2 instance</h1>
             <p>Public IP: "${PUBLIC_IP}"</p>
         </body>
         </html>" > /var/www/html/index.html

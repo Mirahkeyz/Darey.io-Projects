@@ -60,10 +60,12 @@ sudo vi install.sh
 
 paste the script above in this opened file, then save and close the file with the command after using esc. You save and close with shift + :wqa!
 
-5. Change the permission of the file to make it executable.
+5. Change the permission of the file to make it executable
+
 sudo chmod +x install.sh
 
 6. Then Run the shell script using the command below for both servers:
+   
 ./install.sh PUBLIC_IP
 
 ![Snipe 2](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/4590b393-9b41-44ce-8212-fe9018fdf6c8)

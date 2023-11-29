@@ -288,6 +288,183 @@ $ df -h
 
 # Step 6: Install Wordpress On Your Webserver EC2 Instance
 
+Update the repository
+
+$ sudo yum -y update
+
+Install wget, Apache and it’s dependencies
+
+$ sudo yum -y install wget httpd php php-mysqlnd php-fpm php-json
+
+![Snipe 30](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f52f4b59-e6ec-4c82-80fc-68069127b219)
+
+Start Apache
+
+$ sudo systemctl start httpd
+
+Enable Apache
+
+$ sudo systemctl enable httpd
+
+Verify Apache status
+
+$ sudo systemctl status httpd
+
+![Snipe 31](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/70ebfe1b-9999-4def-b259-187bd40c4f42)
+
+To install PHP and it’s depemdencies
+
+$ sudo yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
+$ sudo yum install yum-utils http://rpms.remirepo.net/enterprise/remi-release-8.rpm
+
+$ sudo yum module list php
+
+$ sudo yum module reset php
+
+$ sudo yum module enable php:remi-7.4
+
+$ sudo yum install php php-opcache php-gd php-curl php-mysqlnd
+
+Start php and set policies
+
+$ sudo systemctl start php-fpm
+
+Enable php
+
+$ sudo systemctl enable php-fpm
+
+verify php status
+
+$ sudo systemctl status php-fpm
+
+$ sudo setsebool -P httpd_execmem 1
+
+Restart Apache
+
+$ sudo systemctl restart httpd
+
+![Snipe 32](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ff42cfee-8e4f-4645-8a4c-3b3c7abc5a93)
+
+Copy the IP address of the webserver to the browser to see that the apache is working properly
+
+![Snipe 33](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/9e2ab851-0854-42ed-a172-a63cab0376c7)
+
+Download wordpress and copy wordpress to "var/www/html"
+
+Create directory wordpress and cd into the directory.
+
+$ mkdir wordpress
+
+$ cd   wordpress
+
+Download the wordpress file
+
+$ sudo wget http://wordpress.org/latest.tar.gz
+
+Unzip the file
+
+$ sudo tar xzvf latest.tar.gz
+
+![Snipe 34](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f6a257dc-256d-45d8-9cfc-977fc23a51b8)
+
+$sudo rm -rf latest.tar.gz
+
+Copy "wordpress/wp-config-sample.php" into "wordpress/wp-config.php"
+
+N/B: wordpress/wp-config.php" will be created.
+
+$ sudo cp wordpress/wp-config-sample.php wordpress/wp-config.php
+
+Copy wordpress into "/var/www/html"
+
+$ sudo cp -R wordpress/* /var/www/html/
+
+Configure SELinux Policies
+
+$ sudo chown -R apache:apache /var/www/html/
+
+$ sudo chcon -t httpd_sys_rw_content_t /var/www/html/ -R
+
+$ sudo setsebool -P httpd_can_network_connect=1
+
+$ sudo setsebool -P httpd_can_network_connect_db 1
+
+# Step 7: Install Mysql On Your DB EC2 Instance
+
+Update the repository
+
+$ sudo yum update -y
+
+Install mysql-server
+
+$ sudo yum install mysql-server
+
+![Snipe 35](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/bbfea08f-3f3d-4cb5-9607-23db00c19918)
+
+Verify that the service is up and running, if it is not running, restart the service and enable it so it will be running even after reboot:
+
+$ sudo systemctl restart mysqld
+
+$ sudo systemctl enable mysqld
+
+$ sudo systemctl status mysqld
+
+![Snipe 36](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/711ca678-8e50-46dc-99bb-2a5015102fd7)
+
+Configure DB to work with WordPress
+
+$ sudo mysql
+
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'PassWord.1';
+
+mysql> exit;
+
+$ sudo mysql_secure_installation
+
+![Snipe 37](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/2b626766-9532-4d06-b042-ad912abdc6d8)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

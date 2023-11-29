@@ -206,6 +206,128 @@ df -h
 
 ![Snipe 24](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/03423f91-8458-4279-9220-d34281e386a1)
 
+# Step 5: Prepare The Database Server
+
+Launch a second RedHat EC2 instance that will have a role – ‘DB Server’ Repeat the same steps as for the Web Server, but instead of apps-lv create db-lv and mount it to /db directory instead of /var/www/html/.
+
+The apps-lv will be used to store data for the Website while, logs-lv will be used to store data for logs.
+
+$ sudo lvcreate -n db-lv -L 14G webdata-vg
+
+$ sudo lvcreate -n logs-lv -L 14G webdata-vg
+
+Verify that your Logical Volume has been created successfully by running
+
+$ sudo lvs
+
+![Snipe 25](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f28ee0ec-e93e-430a-b119-55bd4b845aaf)
+
+Verify the entire setup
+
+$ sudo vgdisplay -v #view complete setup - VG, PV, and LV
+
+![Snipe 26](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/51adbaed-6df1-4daf-afa4-c27bb9a8b437)
+
+Use mkfs.ext4 to format the logical volumes with ext4 filesystem.
+
+$ sudo mkfs -t ext4 /dev/webdata-vg/db-lv
+
+$ sudo mkfs -t ext4 /dev/webdata-vg/logs-lv
+
+Create db directory to store database files
+
+$ sudo mkdir db
+
+Create /home/recovery/logs to store backup of log data
+
+$ sudo mkdir -p /home/recovery/logs
+
+Mount db/ on db-lv logical volume
+
+$ sudo mount /dev/webdata-vg/db-lv db/
+
+Use rsync utility to backup all the files in the log directory /var/log into /home/recovery/logs (This is required before mounting the file system).
+
+$ sudo rsync -av /var/log/. /home/recovery/logs/
+
+Mount /var/log on logs-lv logical volume. (all the existing data on /var/log will be deleted.)
+
+$ sudo mount /dev/webdata-vg/logs-lv /var/log
+
+Restore log files back into /var/log directory
+
+$ sudo rsync -av /home/recovery/logs/. /var/log
+
+The UUID of the device will be used to update the /etc/fstab file;
+
+$ sudo blkid
+
+![Snipe 27](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/4eae644f-344e-4d52-9e1e-00b9729e1082)
+
+Open the "/etc/fstab" file.
+
+$ sudo vi /etc/fstab
+
+Update "/etc/fstab" in this format using your own UUID and rememeber to remove the leading and ending quotes.
+
+![Snipe 28](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a980e310-8020-493e-ba32-a3c85f5a9e63)
+
+Test the configuration for errors.
+
+$ sudo mount -a
+
+Reload daemon
+
+$ sudo systemctl daemon-reload
+
+Verify your setup by running
+
+$ df -h
+
+![Snipe 29](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/1df1db18-61d0-47b5-abfe-24b7f2bc092a)
+
+# Step 6: Install Wordpress On Your Webserver EC2 Instance
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -424,6 +424,72 @@ $ sudo mysql_secure_installation
 
 ![Snipe 37](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/2b626766-9532-4d06-b042-ad912abdc6d8)
 
+$ sudo mysql -p
+
+mysql> CREATE DATABASE `wordpress`;
+
+mysql> CREATE USER 'myuser'@'%' IDENTIFIED WITH mysql_native_password BY 'PassWord.1';
+
+mysql> GRANT ALL ON example_database.* TO 'myuser'@'%';
+
+mysql> exit;
+
+mysql -u example_user -p
+
+mysql> SHOW DATABASES;
+
+![Snipe 38](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/1d98e1b9-bb89-4a7f-a050-4bf62f946b74)
+
+![Snipe 39](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/6bac0fcf-16c5-4eca-987b-359841775bb8)
+
+Open MySQL port 3306 on DB Server EC2. For extra security, you shall allow access to the DB server ONLY from your Web Server’s IP address, so in the Inbound Rule configuration specify source as /32
+
+Install MySQL client and test that you can connect from your Web Server to your DB server by using mysql-client.
+
+$ sudo yum install mysql
+
+![Snipe 40](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/8c9e6c88-2712-4462-a0a4-b77812c4cfee)
+
+Connecting webserver to DBserver and Verify if you can successfully execute SHOW DATABASES; command and see a list of existing databases.
+
+$ sudo mysql -u myuser -p -h <DB-Server-Private-IP-address>
+
+Change permissions on the "/var/www/html" directory so that apache can use wordpress.
+
+sudo chown -R apache:apache /var/www/html
+
+Edit the "/var/www/html/wp-config.php" to connect to dataabase.
+
+Disable the apache configuration(i.e renaming to backup)
+
+$ mv /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/welcome.conf_backup
+
+Open "/etc/my.cnf" and edit the file. Add [mysqld] and "bind-address=0.0.0.0".
+
+$ sudo vi /etc/my.cnf
+
+ In setting up our mysql configuration, we put the access as "%" whch shows we want to connect from anywhere. If we have set a particular IP address of webserver we will put in the same IP address in the bind-address.
+
+ Try to access from your browser the link to your WordPress
+
+http://<Web-Server-Public-IP-Address>/wordpress/
+
+![Snipe 41](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/4885a2b5-5525-4158-8928-708e002ee8b4)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

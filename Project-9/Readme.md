@@ -472,7 +472,9 @@ $ sudo vi /etc/my.cnf
 
  Try to access from your browser the link to your WordPress
 
+
 http://<Web-Server-Public-IP-Address>/wordpress/
+
 
 ![Snipe 41](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/4885a2b5-5525-4158-8928-708e002ee8b4)
 

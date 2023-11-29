@@ -52,6 +52,86 @@ then click on attach. do this for the three Ebs volumes created.
 
 - Use lsblk command to inspect what block devices are attached to the server. Notice names of your newly created devices. All devices in Linux reside in /dev/ directory. Inspect it with ls /dev/ and make sure you see all 3 newly created block devices there – their names will likely be xvdf, xvdh, xvdg.
 
+  ![Snipe 7](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/3aca0026-e0b2-458a-b0fc-bd5926bcaaab)
+
+  Use df -h command to see all mounts and free space on your server.
+
+Use gdisk utility to create a single partition on each of the 3 disks
+
+$ sudo gdisk /dev/xvdf
+
+type "?" to display the available options. Then "p" "which represents print the partition table".
+
+From the options displayed, "n" represents "add a new partition".
+
+Type "n" then "p" to display the new partiton table Type "w" to write table to disk.
+
+![Snipe 9](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/6c1ff993-44a6-443b-b1cc-5664b5ddca79)
+
+Repeat the process for the the three disks i.e /dev/xvdf, /dev/xvdg. /dev/xvdh.
+
+Use lsblk utility to view the newly configured partition on each of the 3 disks.
+
+![Snipe 10](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/961a64e2-bd5d-4d05-b8cc-e051a4b9708f)
+
+# Step 4: Install LVM
+
+Install lvm2 package using
+
+$ sudo yum install lvm2
+
+![Snipe 11](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c506dfee-4dcd-4e01-8051-d4b1b08e0063)
+
+Run
+
+$ sudo lvmdiskscan to check for available partitions.
+
+![Snipe 12](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ed3628b7-9513-488a-bae0-8bf4f6fe46eb)
+
+Use pvcreate utility to mark each of 3 disks as physical volumes (PVs) to be used by LVM.
+
+$ sudo pvcreate /dev/xvdf1
+
+$ sudo pvcreate /dev/xvdg1
+
+$ sudo pvcreate /dev/xvdh1
+
+![Snipe 13](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/942cf679-37bf-4a76-ba5c-f4566d922182)
+
+Verify that your Physical volume has been created successfully by running
+
+$ sudo pvs
+
+![Snipe 14](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/9e45e132-ab09-457e-bbb3-91f8fd983d65)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -20,7 +20,7 @@ sudo gdisk /dev/xvdf1
 
 ![Snipe 3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/12122a72-9990-4df5-b240-e9879df7b85e)
 
-create the partion for the remaining two
+create the partition for the remaining two
 
 Next install LVM2 by running sudo yum install lvm2 then carry out the process as in the last project.
 
@@ -78,18 +78,39 @@ sudo chmod -R 777 /mnt/opt
 
 sudo systemctl restart nfs-server.service
 
+![Snipe 9](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/948a0f72-088a-4f62-bc9c-d3a681fc277e)
+
 Configure access to NFS for clients within the same subnet (example of Subnet CIDR – 172.31.32.0/20):
 
 First of all to check your Subnet cidr, go to your NFS server, click on Networking scroll down to subnet click on it then you will see your subnet address
 
 After getting our subnet address type the following command sudo vi /etc/exports when it opens paste the code written below then edit where it says subnet cidr and then put your subnet cidr address
 
+/mnt/apps <Subnet-CIDR>(rw,sync,no_all_squash,no_root_squash)
+/mnt/logs <Subnet-CIDR>(rw,sync,no_all_squash,no_root_squash)
+/mnt/opt <Subnet-CIDR>(rw,sync,no_all_squash,no_root_squash)
 
+Esc + :wq!  to exit vim
 
+sudo exportfs -arv
 
+Check which port is used by NFS and open it using Security Groups (add new Inbound Rule). type the code below to see the NFS port
 
+sudo rpcinfo -p | grep nfs
 
+![Snipe 10](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/96ad94ae-25c0-4b7c-b0ee-8539d47433b0)
 
+As you are still on the NFS security group kindly put the following ports
+
+Custom TCP: 2049
+
+CUSTOM TCP: 111
+
+CUSTOM UDP: 2049
+
+CUSTOM UDP: 111
+
+![Snipe 11](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/68811b3d-08b1-4cf4-b431-f6c6e87fa4e1)
 
 
 

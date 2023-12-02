@@ -60,6 +60,8 @@ sudo systemctl enable nfs-server.service
 
 sudo systemctl status nfs-server.service
 
+![Snipe 8](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f1aa827c-b822-4b81-ab08-53b5d3aaf883)
+
 Export the mounts for webservers’ subnet cidr to connect as clients. For simplicity, you will install your all three Web Servers inside the same subnet, but in production set up you would probably want to separate each tier inside its own subnet for higher level of security. To check your subnet cidr – open your EC2 details in AWS web console and locate ‘Networking’ tab and open a Subnet link:
 
 Make sure we set up permission that will allow our Web servers to read, write and execute files on NFS:
@@ -87,7 +89,9 @@ First of all to check your Subnet cidr, go to your NFS server, click on Networki
 After getting our subnet address type the following command sudo vi /etc/exports when it opens paste the code written below then edit where it says subnet cidr and then put your subnet cidr address
 
 /mnt/apps <Subnet-CIDR>(rw,sync,no_all_squash,no_root_squash)
+
 /mnt/logs <Subnet-CIDR>(rw,sync,no_all_squash,no_root_squash)
+
 /mnt/opt <Subnet-CIDR>(rw,sync,no_all_squash,no_root_squash)
 
 Esc + :wq!  to exit vim
@@ -112,16 +116,37 @@ CUSTOM UDP: 111
 
 ![Snipe 11](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/68811b3d-08b1-4cf4-b431-f6c6e87fa4e1)
 
+# Step 3: Configure The Database Server
 
+Install MySQL server
 
+sudo apt install mysql-server
 
+Next type sudo mysql
 
+- Create a database and name it tooling
 
+create database tooling;
 
+- Create a database user and name it webaccess then attach the NFS subnet cidr address to it
 
+create user 'webaccess'@'172.31.80.0/20' identified by 'password';
 
+- Grant permission to webaccess user on tooling database
 
+GRANT ALL PRIVILEDGES ON tooling.* TO 'webaccess'@'172.31.80.0/20';
 
+![Snipe 7](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/fbbd7280-3dda-4e6b-8ac4-d6348a95abd4)
+
+# Step 4: Prepare The Webservers
+
+- SSH to one of the Webservers launched earlier
+
+- Install NFS client
+
+  sudo yum install nfs-utils nfs4-acl-tools -y
+
+- Mount /var/www/ and target the NFS server’s export for apps
 
 
 

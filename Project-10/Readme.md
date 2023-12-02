@@ -148,6 +148,88 @@ GRANT ALL PRIVILEDGES ON tooling.* TO 'webaccess'@'172.31.80.0/20';
 
 - Mount /var/www/ and target the NFS server’s export for apps
 
+sudo mkdir /var/www
+sudo mount -t nfs -o rw,nosuid <NFS-Server-Private-IP-Address>:/mnt/apps /var/www
+
+![Snipe 12](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/d7723ded-ab06-4925-b147-9d6fbee2f12c)
+
+- Verify that NFS was mounted successfully by running df -h. Make sure that the changes will persist on Web Server after reboot:
+
+sudo vi /etc/fstab
+
+add following line;
+
+<NFS-Server-Private-IP-Address>:/mnt/apps /var/www nfs defaults 0 0
+
+- Install Remi’s repository, Apache and PHP
+
+  sudo yum install httpd -y
+
+sudo yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
+sudo yum install dnf-utils http://rpms.remirepo.net/enterprise/remi-release-8.rpm
+
+sudo yum module  list php -y
+
+sudo yum module reset php -y
+
+sudo yum module enable php:remi-7.4 -y
+
+sudo yum install php php-opcache php-gd php-curl php-mysqlnd -y
+
+sudo systemctl start php-fpm
+
+sudo systemctl enable php-fpm
+
+sudo setsebool -P httpd_execmem 1
+
+sudo systemctl restart httpd
+
+
+# Repeat steps 1-5 for another 2 Web Servers.
+
+- Verify that Apache files and directories are available on the Web Server in /var/www and also on the NFS server in /mnt/apps. If you see the same files – it means NFS is mounted correctly. You can try to create a new file touch test.txt from one server and check if the same file is accessible from other Web Servers.
+
+- Locate the log folder for Apache on the Web Server and mount it to NFS server’s export for logs. Repeat step 4 under the 'prepare web servers' to make sure the mount point will persist after reboot.
+
+sudo vi /etc/fstab
+
+- Clone the tooling source code from Darey.io Github Account by clicking on code then either copy the HTTPS link or SSH link
+
+- Deploy the tooling website’s code to the Webserver. Ensure that the html folder from the repository is deployed to /var/www/html
+
+  ![Snipe 13](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5f76f5af-51c1-4edf-b87e-458218f39967)
+
+![Snipe 14](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7d2b7f2f-246a-44b1-a765-c494e9be3162)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

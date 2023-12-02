@@ -118,11 +118,13 @@ CUSTOM UDP: 111
 
 # Step 3: Configure The Database Server
 
-Install MySQL server
+- Install MySQL server
 
 sudo apt install mysql-server
 
-Next type sudo mysql
+- After doing that, go to your DB server in AWS, go to the security group, for port choose Mysql/Aurora Tcp: 3306 Then for the custom IP, put the NFS subnet cidr IPV4 address
+
+- Next type sudo mysql
 
 - Create a database and name it tooling
 
@@ -160,6 +162,10 @@ sudo vi /etc/fstab
 add following line;
 
 <NFS-Server-Private-IP-Address>:/mnt/apps /var/www nfs defaults 0 0
+
+- Next Install On The Webserver
+
+sudo yum install mysql -y
 
 - Install Remi’s repository, Apache and PHP
 
@@ -201,6 +207,46 @@ sudo vi /etc/fstab
   ![Snipe 13](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5f76f5af-51c1-4edf-b87e-458218f39967)
 
 ![Snipe 14](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7d2b7f2f-246a-44b1-a765-c494e9be3162)
+
+- Note 1: Do not forget to open TCP port 80 on the Web Server.
+
+- Note 2: If you encounter 403 Error – check permissions to your /var/www/html folder and also disable SELinux by running sudo setenforce 0
+
+To make this change permanent – open following config file sudo vi /etc/sysconfig/selinux and set SELINUX=disabled then restart httpd.
+
+![Snipe 15](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/13632cc9-0ee2-4cb0-9b5d-6deec159fab5)
+
+- After doing that, run the below code
+
+sudo systemctl restart httpd
+
+sudo systemctl status httpd
+
+- Update the website’s configuration to connect to the database by running sudo vi /var/www/html/functions.php file 
+
+- Apply tooling-db.sql script to your database using this command mysql -h (Db-private-ip) -u webaccess -p tooling < tooling-db.sql
+
+- Next edit the Mysqld.cnf file
+
+  sudo vi /etc/mysql/mysql.conf.d//mysqld.cnf
+
+sudo systemctl restart mysql
+
+sudo systemctl status mysql
+
+![Snipe 16](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/452dda71-33f4-4a6c-b9cc-e0c2350e94d8)
+
+- Open the website in your browser http://(Webserver-public-ip)/index.php and make sure you can login into the website
+
+
+
+
+
+
+
+
+
+
 
 
 

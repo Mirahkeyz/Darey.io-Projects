@@ -107,7 +107,46 @@ A Jump Server (sometimes also referred as Bastion Host) is an intermediary serve
 
    - Go to github and merge the pull request to main branch
 
-     # STEP 6: UPDATE THE INVENTORY/Common.yml file created and Playbook/dev file created
+ # STEP 5: Setup SSH agent using windows power shell terminal using the following script
+
+   - open the link https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell and follow the procedures or follow mine below
+
+   - First we are going to install OPENSSH or check if it is already installed with the code below
+
+     Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH*'
+
+     - Then, install the server or client components as needed with the code below
+    
+    # Install the OpenSSH Client
+Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
+
+    # Install the OpenSSH Server
+Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+
+   - To start and configure OpenSSH Server for initial use, open an elevated PowerShell prompt (right click, Run as an administrator), then run the following commands to start the sshd service:
+
+         # Start the sshd service
+Start-Service sshd
+
+    # OPTIONAL but recommended:
+Set-Service -Name sshd -StartupType 'Automatic'
+
+    # Confirm the Firewall rule is configured. It should be created automatically by setup. Run the following to verify
+if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyContinue | Select-Object Name, Enabled)) {
+    Write-Output "Firewall Rule 'OpenSSH-Server-In-TCP' does not exist, creating it..."
+    New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
+} else {
+    Write-Output "Firewall rule 'OpenSSH-Server-In-TCP' has been created and exists."
+}
+
+    - Next we are To generate key files using the Ed25519 algorithm, run the following command
+
+    ssh-keygen -t ed25519
+
+      You can press Enter to accept the default, or specify a path and/or filename where you would like your keys to be generated. At this point, you'll be prompted to use a passphrase to encrypt your private key files. The passphrase can be empty but it's not recommended. The passphrase works with the key file to provide two-factor authentication. For this example, we're leaving the passphrase empty.
+
+      
+  # STEP 6: UPDATE THE INVENTORY/Common.yml file created and Playbook/dev file created
 
      use the code below to update the dev file under playbook. copy the private ips from the servers we created before and replace it on the code
 

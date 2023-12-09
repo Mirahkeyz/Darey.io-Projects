@@ -199,6 +199,30 @@ git push origin development
 
 # STEP 9: Run First Ansible Test
 
+- Go to your ansible repo on github and clone it by copying the HTTPS link then go to your gitbash and type git clone with the link
+
+- Next cd into the directory
+
+  cd ansible-config-mgt
+
+  - Next, we will try to ping all the servers just to check if our ansible connection is setup properly with the ansible ping module
+ 
+    ansible all -i inventory/dev -m ping
+
+   ![Snipe 17](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/b5b511f0-2346-4e81-ab35-c5e44c9d2ee8)
+
+  - Now, We will run our playbooks.
+ 
+    ansible-playbook -i inventory/dev playbooks/common.yml"
+
+    ![Snipe 18](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a176df54-4738-4046-80f8-65753c8d6099)
+
+
+
+
+
+
+  
 
 
     

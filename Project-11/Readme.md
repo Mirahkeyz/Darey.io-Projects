@@ -81,9 +81,25 @@ A Jump Server (sometimes also referred as Bastion Host) is an intermediary serve
 
    # Note: everytime I stop/start my my Ansible server, I will have to reconfig github webhook Ip address. To avoid this, I can allocate an Elastic Ip to the server.Elastic IP is only free when allocated to an EC2 instance, so remenber to release Elastic Ip once I terminate Instance.
 
-   # STEP 4: PREPARING THE DEVELOPMENT AREA USING VSCODE
+   # STEP 5: PREPARING THE DEVELOPMENT AREA USING VSCODE
 
   - Create a new folder on Gitbash and name it ansible-config-mgt then cd into that folder and type code . to open vscode
+
+  - Go to your vscode terminal and type the below code
+
+    echo "# ansible-config-mgt" >> README.md
+    
+  git init
+  
+  git add README.md
+  
+  git commit -m "first commit"
+  
+  git branch -M main
+  
+  git remote add origin https://github.com/Mirahkeyz/ansible-config-mgt.git    (please put your own repo name and github acct name)
+  
+  git push -u origin main
 
   - Go to your vscode terminal and switch to development branch and create two separate directories
 
@@ -107,7 +123,7 @@ A Jump Server (sometimes also referred as Bastion Host) is an intermediary serve
 
    - Go to github and merge the pull request to main branch
 
- # STEP 5: Setup SSH agent using windows power shell terminal using the following script
+ # STEP 6: Setup SSH agent using windows power shell terminal using the following script
 
    - open the link https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell and follow the procedures or follow mine below
 
@@ -139,6 +155,8 @@ if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyCon
     Write-Output "Firewall rule 'OpenSSH-Server-In-TCP' has been created and exists."
 }
 
+
+
     - Next we are To generate key files using the Ed25519 algorithm, run the following command
 
     ssh-keygen -t ed25519
@@ -146,31 +164,42 @@ if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyCon
       You can press Enter to accept the default, or specify a path and/or filename where you would like your keys to be generated. At this point, you'll be prompted to use a passphrase to encrypt your private key files. The passphrase can be empty but it's not recommended. The passphrase works with the key file to provide two-factor authentication. For this example, we're leaving the passphrase empty.
 
       
-  # STEP 6: UPDATE THE INVENTORY/Common.yml file created and Playbook/dev file created
+  # STEP 7: UPDATE THE INVENTORY/Common.yml file created and Playbook/dev file created
 
-     use the code below to update the dev file under playbook. copy the private ips from the servers we created before and replace it on the code
+  - use the picture below to update the dev file under playbook. copy your own private ips from the servers we created before and replace it on the code
 
-     [nfs]
-<NFS-Server-Private-IP-Address> ansible_ssh_user=ec2-user
+     ![Snipe 26](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/099d385c-5c81-4985-8b8a-ab7cdd585ea6)
 
-[webservers]
-<Web-Server1-Private-IP-Address> ansible_ssh_user=ec2-user
-
-<Web-Server2-Private-IP-Address> ansible_ssh_user=ec2-user
-
-[db]
-<Database-Private-IP-Address> ansible_ssh_user=ec2-user 
-
-[lb]
-<Load-Balancer-Private-IP-Address> ansible_ssh_user=ubuntu
 
 - use the picture below to update the common.yml file under inventory
 
   ![Snipe 25](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/460af0af-187d-4d9f-8704-3a05c2cac56f)
 
-# STEP 7: Update git with the latest code
+# STEP 8: Update git with the latest code
 
+- Go to your vscode terminal and type the below
+
+  git status
+
+  git add .
+
+  git commit -m ("with the message")
+
+  git push -u origin development
+
+  git checkout main
   
+git pull origin main
+
+git checkout development 
+
+git rebase main
+
+git push origin development
+
+# STEP 9: Run First Ansible Test
+
+
 
     
 

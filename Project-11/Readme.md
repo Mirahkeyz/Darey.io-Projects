@@ -78,7 +78,29 @@ A Jump Server (sometimes also referred as Bastion Host) is an intermediary serve
 
    # STEP 4: PREPARING THE DEVELOPMENT AREA USING VSCODE
 
+  - Create a new folder on Gitbash and name it ansible-config-mgt then cd into that folder and type code . to open vscode
 
+  - Go to your vscode terminal and switch to development branch and create two separate directories
+
+    git checkout -b development
+
+    mkdir playbooks
+
+    mkdir inventory
+
+    - Right click on playbooks and create new file and name it common.yml
+   
+    - Right click on inventory and create different files one after the other and name it dev, staging, uat, prod
+   
+    - go to the vscode terminal and type the below codes
+   
+    git add .
+
+    git commit -m "initial commit"
+
+    git remote add origin https://github.com/mirahkeyz/ansible-config-mgt/tree/development     pls add your own repo link and github name here link here
+
+   - Go to github and merge the pull request to main branch
     
 
 

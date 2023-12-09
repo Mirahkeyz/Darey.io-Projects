@@ -12,11 +12,16 @@ A Jump Server (sometimes also referred as Bastion Host) is an intermediary serve
 
   # STEP 1: LAUNCH AN INSTANCE AND INSTALL ANSIBLE.
 
-  1. Launch an instance and name it Jenkins-Ansible
+  1. Launch an ubuntu instance and name it Jenkins-Ansible
  
      ![Snipe 1](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/675b0eac-67b0-45aa-abb0-01573267dd20)
 
-  3. Then go to your powershell and install Ansible
+  2. Launch other servers which are NFS server(Rhel 9 ami), WEB 1 and WEB 2 servers(Rhel 9 ami for each), Db server(Rhel 9 ami), LB server(ubuntu 22.04 ami) and they should use the same key pair with the jump server we created before
+
+     ![Snipe 11](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/b6324808-74cb-47d1-875d-a6c7139cb556)
+
+
+  3. Then go to your powershell and install Ansible using the keypair of the jump server 
  
   - sudo apt update
  
@@ -101,6 +106,33 @@ A Jump Server (sometimes also referred as Bastion Host) is an intermediary serve
     git remote add origin https://github.com/mirahkeyz/ansible-config-mgt/tree/development     pls add your own repo link and github name here link here
 
    - Go to github and merge the pull request to main branch
+
+     # STEP 6: UPDATE THE INVENTORY/Common.yml file created and Playbook/dev file created
+
+     use the code below to update the dev file under playbook. copy the private ips from the servers we created before and replace it on the code
+
+     [nfs]
+<NFS-Server-Private-IP-Address> ansible_ssh_user=ec2-user
+
+[webservers]
+<Web-Server1-Private-IP-Address> ansible_ssh_user=ec2-user
+
+<Web-Server2-Private-IP-Address> ansible_ssh_user=ec2-user
+
+[db]
+<Database-Private-IP-Address> ansible_ssh_user=ec2-user 
+
+[lb]
+<Load-Balancer-Private-IP-Address> ansible_ssh_user=ubuntu
+
+- use the picture below to update the common.yml file under inventory
+
+  ![Snipe 25](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/460af0af-187d-4d9f-8704-3a05c2cac56f)
+
+# STEP 7: Update git with the latest code
+
+  
+
     
 
 

@@ -58,7 +58,29 @@ A Jump Server (sometimes also referred as Bastion Host) is an intermediary serve
 
    -  when it opens for GENERAL settings look at the screenshot below
 
-     ![Snipe 21](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/bf8b2c85-cdbc-4294-b42b-3267e45931a9)
+![Snipe 21](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/d5a5c95f-646d-4c43-93e7-bed17b92b3e5)
+
+  - for source code management select Git then for repository url place the repo link you are working on in the box
+
+  - specify */main branch
+
+    ![Snipe 22](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5bc05fe6-7737-4c94-81b8-3697ea414668)
+
+  - For Build Triggers seting select Github hook trigger fot Gitscm polling
+
+    ![Snipe 23](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/8d184b4d-cbaf-4493-969e-feb84b5f5208)
+
+  - For Post Build Action select Archive the Arctifacts then type ** on the box
+
+    ![Snipe 24](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/9f645d42-c144-45f0-bbae-3b3a11138e09)
+
+   # Note: everytime I stop/start my my Ansible server, I will have to reconfig github webhook Ip address. To avoid this, I can allocate an Elastic Ip to the server.Elastic IP is only free when allocated to an EC2 instance, so remenber to release Elastic Ip once I terminate Instance.
+
+   # STEP 4: PREPARING THE DEVELOPMENT AREA USING VSCODE
+
+
+    
+
 
      
 

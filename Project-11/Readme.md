@@ -37,9 +37,15 @@ A Jump Server (sometimes also referred as Bastion Host) is an intermediary serve
 
  1. Go to jenkins.io on your browser then click on ubuntu then follow the commands one after the other and be pasting them on your powershell till you install jenkins
 
-2.  Go to your instance on AWS that is running and edit its inbound rule and place the custom TCP at 8080 from anywhere
+  ![Snipe 4](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/952c3a0e-8db8-497d-ab1f-f051125d0f63)
 
-# STEP 3: CREATE A REPO ON GITHUB (Ansible-config-mgt)
+
+3.  Go to your instance on AWS that is running and edit its inbound rule and place the custom TCP at 8080 from anywhere
+
+![Snipe 6](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/21f6b908-a196-44f7-96e9-f9d23860ad94)
+
+
+# STEP 3: CREATE A REPO ON GITHUB (Ansible-config-mgt) And Add A Webhook
 
   - create a new repo on github you can name it ansible-config-mgt
 
@@ -52,6 +58,12 @@ A Jump Server (sometimes also referred as Bastion Host) is an intermediary serve
 # STEP 4: CONFIG JENKINS TO BUILD JOB
 
    - Take your instance public ip and place on your browser e.g http://Publicip:8080 then when it opens copy the stuff in the bracket and go to your powershell and sudo cat it to get the password
+
+     ![Snipe 7](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/8cedc64e-bc46-4d2c-bdaa-353fc9a6ce6e)
+
+     ![Snipe 8](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/aa79f8e1-ecb2-445b-845c-71a464621097)
+
+
 
    - when it opens click on install suggested plugins
 

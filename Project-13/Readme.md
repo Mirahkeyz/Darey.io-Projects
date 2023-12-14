@@ -69,6 +69,140 @@ site.yml should now look like this.
 - name: Webserver assignment
   import_playbook: ../static-assignments/webservers.yml
 
+# Community Roles
+
+Now it is time to create a role for MySQL database – it should install the MySQL package, create a database and configure users. But why should we re-invent the wheel? There are tons of roles that have already been developed by other open source engineers out there. These roles are actually production ready, and dynamic to accomodate most of Linux flavours. With Ansible Galaxy again, we can simply download a ready to use ansible role, and keep going.
+
+Download Mysql Ansible Role
+
+We will be using a MySQL role developed by geerlingguy
+
+Inside roles directory create your new MySQL role with ansible-galaxy install geerlingguy.mysql -p . and rename the folder to mysql
+
+mv geerlingguy.mysql/ mysql
+
+Inside roles directory create your new MySQL role with ansible-galaxy install geerlingguy.nginx -p . and rename the folder to nginxRole
+
+mv geerlingguy.nginx/ nginxRole
+
+Inside roles directory create your new MySQL role with ansible-galaxy install geerlingguy.apache -p . and rename the folder to apacheRole
+
+mv geerlingguy.apache/ apacheRole
+
+![Snipe 1](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/aa1aef10-e36d-44e9-9a51-b8126f2090ba)
+
+# LOAD BALANCER ROLES
+
+We want to be able to choose which Load Balancer to use, Nginx or Apache, so we need to have two roles respectively:
+
+1. Nginx
+
+2. Apache
+
+# Important Hints:
+
+- Since you cannot use both Nginx and Apache load balancer, you need to add a condition to enable either one – this is where you can make use of variables.
+
+- Declare a variable in defaults/main.yml file inside the Nginx and Apache roles. Name each variables enable_nginx_lb and enable_apache_lb respectively.
+
+- Set both values to false like this enable_nginx_lb: false and enable_apache_lb: false.
+
+- Declare another variable in both roles load_balancer_is_required and set its value to false as well
+
+- Update both assignment and site.yml files respectively
+
+  loadbalancers.yml file
+
+  - hosts: lb
+  roles:
+    - { role: nginx, when: enable_nginx_lb and load_balancer_is_required }
+    - { role: apache, when: enable_apache_lb and load_balancer_is_required }
+   
+    site.yml file
+
+    
+     - name: Loadbalancers assignment
+       hosts: lb
+         - import_playbook: ../static-assignments/loadbalancers.yml
+        when: load_balancer_is_required
+
+Now you can make use of env-vars\uat.yml file to define which loadbalancer to use in UAT environment by setting respective environmental variable to true.
+
+You will activate load balancer, and enable nginx by setting these in the respective environment’s env-vars file.
+
+enable_nginx_lb: true
+load_balancer_is_required: true
+
+The same must work with apache LB, so you can switch it by setting respective environmental variable to true and other to false.
+
+Run Playbook using:
+
+ansible-playbook -i inventory/uat.yml playbooks/site.yml
+
+![Snipe 2](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/74144399-8104-4b69-8396-268fe16adad8)
+
+![Snipe 3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f56a2f87-aa01-4ce2-b8d7-7125af3f6ece)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

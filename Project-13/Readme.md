@@ -47,8 +47,8 @@ Your layout should now look like this.
 └── static-assignments
     └── common.yml
     └── webservers.yml
-
-    ![Snipe 4](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/38d44761-fee3-46fc-9e68-fdaebd448f40)
+    
+![Snipe 4](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/774506da-5181-4d97-8897-a54ed46f8803)
 
 
 # Step 2: UPDATE SITE.YML WITH DYNAMIC ASSIGNMENTS

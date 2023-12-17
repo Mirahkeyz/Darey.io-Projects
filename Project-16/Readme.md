@@ -53,7 +53,15 @@ Let's go to the route table menu and create a route table for the public subnets
 
 ![Snipe 7](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c6c0e977-5faa-49eb-9d94-b9e411fe7f3c)
 
+Once created, edit the route table, add the default route to the Internet Gateway(IGW)
+
 ![Snipe 8](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/84ed5310-25fb-4336-bf77-223295e32e93)
+
+Next go the Subnet Associations and clik Edit Subnet Associations
+
+![Snipe 9](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/1223d010-8ef9-40af-a7cf-651fa7149531)
+
+That's it! Now that the VPC is ready, you can run an EC2 instance in public subnets if they need Internet access or in private subnets if they don't.
 
 
 

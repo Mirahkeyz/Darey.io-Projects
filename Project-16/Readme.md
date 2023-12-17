@@ -28,7 +28,22 @@ Below is how to create a subnet
 
   ![Snipe 2](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/feecccec-1923-4ec8-abe9-96af348cbd7a)
 
+  ![Snipe 3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5eb71339-6fad-4e7e-9f5e-983ec8e14ff7)
 
+
+# Step 3: Creating an Internet Gateway
+
+An Internet Gateway in AWS is like a road that connects your city (VPC) to the outside world (the internet). Without this road, people (data) can't come in or go out of your city (VPC). Deep Dive into Internet Gateways To give your public subnet access to the main road (internet), you need an Internet Gateway. This acts like the entrance and exit to your property. We'll show you how to create and attach an Internet Gateway to your VPC.
+
+- After creating a VPC and Subnets the next is Internet Gateway
+
+  Go to VPC > Internet gateways and click "Create internet gateway" put a name tag and click create gateway then Attach the Internet Gateway to the test-vpc
+
+![Snipe 4](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/d4c76ff4-7417-40ee-90d2-2af4b60317a9)
+
+![Snipe 5](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a4366c3d-42a6-48e0-8f49-b8be4becc5cc)
+
+  
 
 
 

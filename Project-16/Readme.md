@@ -77,7 +77,13 @@ A Network Address Translation (NAT) allows instances in your private subnet to c
 
 ![Snipe 10](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c54afddb-e5e2-48e2-8236-af288a5e6ffa)
 
+- Let's go to the route table menu and create a route table for the private subnets. Let edit the route table, add a default route to the Network Address Translation (NAT) Gateway
 
+  ![Snipe 11](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/de8b8470-26cc-40e4-8dc2-4ed38a9f3b6b)
+
+- Next, go to the "Subnet associations" tab and click "Edit subnet associations"
+
+![Snipe 12](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/3be4b8a4-eab9-410e-846a-b7969873bbbd)
 
 
 

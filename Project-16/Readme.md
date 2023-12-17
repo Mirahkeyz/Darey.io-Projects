@@ -43,6 +43,7 @@ An Internet Gateway in AWS is like a road that connects your city (VPC) to the o
 
 ![Snipe 5](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a4366c3d-42a6-48e0-8f49-b8be4becc5cc)
 
+![Snipe 6](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/83006c07-db0c-4849-bbf5-ad07f2a1b0b8)
   
 
 

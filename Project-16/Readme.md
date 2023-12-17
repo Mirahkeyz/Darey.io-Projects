@@ -81,7 +81,7 @@ A Network Address Translation (NAT) allows instances in your private subnet to c
 
   ![Snipe 11](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/de8b8470-26cc-40e4-8dc2-4ed38a9f3b6b)
 
-- Next, go to the "Subnet associations" tab and click "Edit subnet associations"
+- Next, go to the "Subnet associations" tab and click "Edit subnet associations" then choose one of the private subnet
 
 ![Snipe 12](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/3be4b8a4-eab9-410e-846a-b7969873bbbd)
 

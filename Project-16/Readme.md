@@ -63,7 +63,25 @@ Next go the Subnet Associations and clik Edit Subnet Associations
 
 That's it! Now that the VPC is ready, you can run an EC2 instance in public subnets if they need Internet access or in private subnets if they don't.
 
+# Step 5: Creating And Configuring NAT Gateway
 
+A Network Address Translation (NAT) Gateway acts like a secure door that only opens one way. It allows your resources inside the private subnet to access the internet for things like updates and downloads, but it doesn't allow anything from the internet to enter your private subnet.
+
+A Network Address Translation (NAT) allows instances in your private subnet to connect to outside services like Databases but restricts external services to connecting to these instances.
+
+# Linking a NAT Gateway to a Private Subnet
+
+- Go to VPC > NAT Gateways and click "Create NAT Gateway"
+
+- when filling the form click on Allocate Elastic Ip
+
+![Snipe 10](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c54afddb-e5e2-48e2-8236-af288a5e6ffa)
+
+
+
+
+
+  
 
 
 

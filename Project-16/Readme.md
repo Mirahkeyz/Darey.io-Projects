@@ -45,6 +45,15 @@ An Internet Gateway in AWS is like a road that connects your city (VPC) to the o
 
 ![Snipe 6](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/83006c07-db0c-4849-bbf5-ad07f2a1b0b8)
   
+# Step 4: Creating And Configuring Route Tables
+
+Now that we have our entrance and exit (Internet Gateway), we need to give directions to our resources. This is done through a Routing Table. It's like a map, guiding your resources on how to get in and out of your VPC.
+
+Let's go to the route table menu and create a route table for the public subnets.
+
+![Snipe 7](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c6c0e977-5faa-49eb-9d94-b9e411fe7f3c)
+
+![Snipe 8](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/84ed5310-25fb-4336-bf77-223295e32e93)
 
 
 

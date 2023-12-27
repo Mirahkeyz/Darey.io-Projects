@@ -222,6 +222,9 @@ ansible-galaxy collection install community.postgresql
 ansible-galaxy collection install community.mysql
 
 - Go to jenkins, available plugins, search for ansible and install it
+
+  ![Snipe 14](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/6f41ac55-2e54-434a-8574-3d50cb6d8089)
+
   
 - Go to credentials on jenkins, click on system global, click on Add credentials, under kind select SSH username with private key, under id write key-pair, under username write ec2-user, under private key choose enter directly then a box will open go to the location were ur key pair is using git bash and type cat and the name of the key pair then copy everything displayed go back to jenkins and paste it on the box then click on create
   
@@ -286,6 +289,88 @@ pipeline {
 
 
 }
+
+-  Go to your jenkins ansible project and click on pipeline syntax then under sample steps select ansible Playbook: invoke an ansible playbook, under playbook file path in workspace type playbooks/site.yml under inventory file path in workspace type inventory/dev, under SSH connection credentials select ec2-user, tick on use become, tick on disable the SSH key check, tick on colorized output then click on generate pipeline script then copy the script then go to the jenkinsfile on vscode under run ansible playbook and paste urs there
+
+- Go to ur vscode project right click on deploy and create a file called ansible.cfg then paste the below script
+
+ [defaults]
+timeout = 160
+callback_whitelist = profile_tasks
+log_path=~/ansible.log
+host_key_checking = False
+gathering = smart
+ansible_python_interpreter=/usr/bin/python3
+allow_world_readable_tmpfiles=true
+
+
+[ssh_connection]
+ssh_args = -o ControlMaster=auto -o ControlPersist=30m -o ControlPath=/tmp/ansible-ssh-%h-%p-%r -o ServerAliveInterval=60 -o ServerAliveCountMax=60 -o ForwardAgent=yes
+ 
+- Click on sites.yml under playbook then uncomment the nginx and comment the rest then for uat-webservers.yml then comment everything and uncomment nginx then for dev under inventory uncomment nginx and comment the rest then spin up an instance and name it nginx then copy the private ipv4 and replace it
+  
+- Update git with the latest changes
+
+# CI/CD PIPELINE FOR TODO APPLICATION
+
+- Fork the repository below into your GitHub account https://github.com/darey-devops/php-todo.git. Also clone it into your jenkins server (home directory). By going to the vscode terminal and typing git clone and paste the link
+
+- Install php dependencies with the script below
+  
+sudo yum module reset php -y
+sudo yum module enable php:remi-7.4 -y
+sudo yum install -y php php-common php-mbstring php-opcache php-intl php-xml php-gd php-curl php-mysqlnd php-fpm php-json
+sudo systemctl start php-fpm
+sudo systemctl enable php-fpm
+
+- Install composer
+  
+curl -sS https://getcomposer.org/installer | php 
+
+sudo mv composer.phar /usr/bin/composer
+
+composer --version
+
+-  Go back to jenkins, plugins, available plugins, install plot plugins and artifactory plugins
+  
+- spin up a rhel instance and name it artifactory edit the inbound rules add 8081 and 8082
+  
+- Copy the private ipv4 of artifactory and go to vscode, CI under inventory comment everything and paste the the ipv4 address under artifactory and it should be uncomment
+  
+- Go to site.yml under playbooks and comment nginx and uncomment artifactory then go to uat-webservers.yml under static assignments and comment nginx then uncomment artifactory
+  
+- update git with latest changes
+
+- go to jenkins click on scan repository then click on main then click on build with parameters then type ci
+
+- when it builds finish copy the public ip of artifactory go to your browser and paste e.g public ip:8081
+  
+- Login with user: admin password:password
+  
+- go back to ur jenkins dashboard click on systems then scroll down to Jfrog then under instance id type artifactory-server, under jfrog platform url paste ur link e.g http://public-ip:8081 then under username and password gv ur details apply and save
+  
+- Go to your dashboard and click on open blue ocean then click on new pipeline, select github then select php-todo as the repo then click on create pipeline
+  
+- Right click on it and create a file called jenkinsfile
+  
+- Spin up a new instance for your database
+  
+- Go to dev under inventory and comment nginx and uncomment db then replace the ip with the new private ip of the db instance
+  
+- Go to site.yml and comment artifactory and uncomment db
+  
+- go to uat-webservers.yml under static assignments and comment artifactory and uncomment db
+  
+- update git with latest changes
+  
+- go to jenkins dashboard  and scan repository
+  
+- go to vscode, roles, mysql, main.yml 
+
+
+
+
+
 
 
 

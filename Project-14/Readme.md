@@ -365,7 +365,13 @@ composer --version
   
 - go to jenkins dashboard  and scan repository
   
-- go to vscode, roles, mysql, main.yml 
+- go to vscode, roles, mysql, and then main.yml. inside the main.yml script, look for mysql_users then go down to host and replace the IP with your Jenkins server IP
+
+- update git wit latest changes, go to jenkins and scan repo
+
+- go to the artifactory web and click on create repository then click on add repository, choose local repository, select Generic then for Repository key give it any name and click on create repository
+
+  
 
 
 

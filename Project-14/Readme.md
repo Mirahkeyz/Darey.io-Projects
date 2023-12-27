@@ -20,6 +20,102 @@ To emphasize a typical CI Pipeline further, let us explore the diagram below.
   
 In this project, I will be setting up a CI/CD Pipeline for a PHP based application.
 
+This project is architected in two major repositories with each repository containing its own CI/CD pipeline written in a Jenkinsfile
+
+- ansible-config-mgt Repository: This repository employs the use of Jenkinsfile to configure infrastructure required to carry out processes for our application to run using ansible roles.
+
+- PHP-todo Repository: This repository uses Jenkinsfile to run the processes needed to build the PHP application. These processes include testing, building, packaging and deploy.
+
+For this project, i will be using RHEL 8. The tools we will be using to build, test, run code analysis, package and deploy our PHP application are Github, jenkins, Sonarqube and jfrog artifactory.
+
+# Configuring Ansible For Jenkins Deployment
+
+- First, we start our Jenkins instance.
+
+  ![Snipe 2](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/50815d1f-42d4-4037-b9ef-7ba239457369)
+
+- Connect to our vscode
+
+  Host Jenkins-ansible
+           Hostname  ( the Public IPv4 Dns link)
+           User ec2-user
+           IdentityFile /Users/thinkpad/downloads/jenkins-key.pem   (the location were your key-pair is)
+
+  ![Snipe 3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7299186c-5015-4998-8bd1-48110c95b968)
+
+  - Spin up a vscode terminal
+ 
+  - If it is a new jenkins-ansible server install ansible and others with the below commands
+ 
+sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+sudo yum install -y dnf-utils http://rpms.remirepo.net/enterprise/remi-release-8.rpm
+sudo yum install -y ansible-2.9.25
+sudo yum install python3 python3-pip wget unzip git -y
+sudo python3 -m pip install --upgrade setuptools
+sudo python3 -m pip install --upgrade pip
+sudo python3 -m pip install PyMySQL
+python3 -m pip install mysql-connector-python
+python3 -m pip install psycopg2==2.7.5 --ignore-installed
+ansible-galaxy collection install community.postgresql
+ansible-galaxy collection install community.mysql
+ 
+  - Go to jenkins.io and follow the Fedora long term support release process to install jenkins on the vscode terminal
+
+  - After installing go to ur instance and edit inbound rules to 8080
+
+  - Go to your github click on settings, developer settings, personal access token (tokens classic) then click on generate new token, click on generate new token classic then when giving permissions tick on repo and users then copy the generated code
+
+  - Copy ur public ip and paste on ur browser with semi colon 8080 then copy the stuff on bracket and go to ur vscode terminal and type cat and paste the stuff then hit enter to get the password
+
+  - After setting up your jenkins, go to available plugins and search for blue ocean then install it
+
+    ![Snipe 4](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/d2d10247-863d-4cd7-9bfc-3c7586064ae8)
+
+  - Go to your dashboard on jenkins and click on blue ocean so that it will open on another tab
+
+    ![Snipe 5](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/4ff9c2aa-e6ba-4a05-bf8c-e78251a146ec)
+
+ - When it opens click on create a new pipeline click on github then on github token put the token u collected from github then choose the repo u want to work with
+
+   ![Snipe 6](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/04d5f901-19ae-40e1-9f31-7f47ebc0d43a)
+
+   ![Snipe 7](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f60c679f-9246-4389-87ee-81fe2bed4ef8)
+
+ - At the top in ur vscode click on open folder
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

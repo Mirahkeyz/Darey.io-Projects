@@ -371,6 +371,49 @@ composer --version
 
 - go to the artifactory web and click on create repository then click on add repository, choose local repository, select Generic then for Repository key give it any name and click on create repository
 
+- go to vscode, go to Jenkindfile under php-todo and paste the script below
+
+  pipeline {
+    agent any
+
+  stages {
+
+     stage("Initial cleanup") {
+          steps {
+            dir("${WORKSPACE}") {
+              deleteDir()
+            }
+          }
+        }
+
+    stage('Checkout SCM') {
+      steps {
+            git branch: 'main', url: 'https://github.com/Mirahkeyz/php-todo.git'
+      }
+    }
+
+    stage('Prepare Dependencies') {
+      steps {
+             sh 'mv .env.sample .env'
+             sh 'composer install'
+             sh 'php artisan migrate'
+             sh 'php artisan db:seed'
+             sh 'php artisan key:generate'
+      }
+    }
+  }
+}
+
+- Go to your vscode terminal and type sudo yum install mysql -y
+
+- Go to ur artifactory instance and edit the inbound rules TCP 3306 
+
+- Type sudo mysql -u homestead -h (then paste ur artifactory instance private IP)
+
+- update git with latest changes
+
+
+
   
 
 

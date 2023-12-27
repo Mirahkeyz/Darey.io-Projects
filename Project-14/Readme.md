@@ -36,28 +36,9 @@ For this project, i will be using RHEL 8. The tools we will be using to build, t
 
 - Connect to our vscode
 
-  Host Jenkins-ansible
-           Hostname  ( the Public IPv4 Dns link)
-           User ec2-user
-           IdentityFile /Users/thinkpad/downloads/jenkins-key.pem   (the location were your key-pair is)
-
   ![Snipe 3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7299186c-5015-4998-8bd1-48110c95b968)
 
   - Spin up a vscode terminal
- 
-  - If it is a new jenkins-ansible server install ansible and others with the below commands
- 
-sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-sudo yum install -y dnf-utils http://rpms.remirepo.net/enterprise/remi-release-8.rpm
-sudo yum install -y ansible-2.9.25
-sudo yum install python3 python3-pip wget unzip git -y
-sudo python3 -m pip install --upgrade setuptools
-sudo python3 -m pip install --upgrade pip
-sudo python3 -m pip install PyMySQL
-python3 -m pip install mysql-connector-python
-python3 -m pip install psycopg2==2.7.5 --ignore-installed
-ansible-galaxy collection install community.postgresql
-ansible-galaxy collection install community.mysql
  
   - Go to jenkins.io and follow the Fedora long term support release process to install jenkins on the vscode terminal
 
@@ -82,6 +63,264 @@ ansible-galaxy collection install community.mysql
    ![Snipe 7](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f60c679f-9246-4389-87ee-81fe2bed4ef8)
 
  - At the top in ur vscode click on open folder
+
+ - Click on vscode terminal and install git by typing sudo yum install git -y
+
+ - Copy the repo link (ansible-config-mgt) and go back to vscode terminal and type git clone and paste the link
+
+ - When it clones finish you will see it at the top so right click on it and create a folder called deploy. Then under deploy i will create a file called jenkinsfile then paste the below script inside the jenkins file
+    
+   
+           pipeline {
+    agent any
+
+  stages {
+    stage('Build') {
+      steps {
+        script {
+          sh 'echo "Building Stage"'
+        }
+      }
+    }
+  }
+}
+
+- Go back to jenkins dashboard, click on ansible-config-mgt then click on configuration
+
+![Snipe 8](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/abd6293c-2812-4661-922c-1405c1fe5e93)
+
+- Under github credentials add ur username and password
+
+- Click on build configuration click on script path and specify were your jenkins file is on vscode e.g deploy/jenkinsfile then click on apply and save
+
+ ![Snipe 9](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/494c855a-0107-408d-a13e-feaf31b62145)
+
+- Go to vscode terminal and type git config --global user.name Mirahkeyz
+
+- Type again git config --global user.email Mirahkeys@gmail.com
+
+- cd into ansible-config-mgt
+
+       git branch
+
+       git add .
+
+       git  commit -m added jenkinsfile
+    
+       git push
+
+- Go bk to ansible dashboard on jenkins and click on scan repo now and main will appear and it will build successfully
+
+  ![Snipe 10](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0dcb2c02-adf7-4ea6-8297-8e5df87df5e3)
+
+  ![Snipe 11](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/af74c908-8499-44c5-87a3-9d23e6337300)
+
+  ![Snipe 12](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/d6562c40-9fe9-486d-a9df-df1022bc5c60)
+
+- Create a new git branch on vscode terminal and name it feature/jenkinspipeline-stages
+
+- then go to your jenkinsfile and replace it with the script below
+
+  pipeline {
+    agent any
+
+  stages {
+    stage('Build') {
+      steps {
+        script {
+          sh 'echo "Building Stage"'
+        }
+      }
+    }
+
+    stage('Test') {
+      steps {
+        script {
+          sh 'echo "Testing Stage"'
+        }
+      }
+    }
+  }
+}
+
+- Then update git with latest changes
+
+- Go to jenkins and click on scan repo now to display the new branch and the build process
+
+  ![Snipe 13](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c6ff7f5e-b807-4927-86f0-fbc047fd774b)
+
+
+- Go to github Create a pull request to merge the latest code into the main branch
+
+-  Go to vscode terminal and type git switch main follow by git pull
+
+- Go to jenkinsfile on vscode and replace it with below
+
+  pipeline {
+    agent any
+
+  stages {
+    stage("Initial cleanup"){
+      steps {
+        dir("${WORKSPACE}") {
+          deleteDir()
+        }
+      }
+    }
+    
+    stage('Build') {
+      steps {
+        script {
+          sh 'echo "Building Stage"'
+        }
+      }
+    }
+
+    stage('Test') {
+      steps {
+        script {
+          sh 'echo "Testing Stage"'
+        }
+      }
+    }
+
+    stage('Package') {
+      steps {
+        script {
+          sh 'echo "Packaging Stage"'
+        }
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        script {
+          sh 'echo "Deploying Stage"'
+        }
+      }
+    }
+
+    stage("Clean up workspace after build") {
+          steps {
+            cleanWs()
+            }
+    }
+  }
+}
+
+-  Update git with latest changes
+
+-  Now that you have a broad overview of a typical Jenkins pipeline. Let us get the actual Ansible deployment to work by:
+Installing Ansible on Jenkins. Install the following dependencies if not yet installed:
+sudo yum install -y ansible-2.9.25
+python3 -m pip install --upgrade setuptools
+python3 -m pip install --upgrade pip
+python3 -m pip install PyMySQL
+python3 -m pip install mysql-connector-python
+python3 -m pip install psycopg2-binary
+ansible-galaxy collection install community.postgresql
+ansible-galaxy collection install community.mysql
+
+- Go to jenkins, available plugins, search for ansible and install it
+  
+- Go to credentials on jenkins, click on system global, click on Add credentials, under kind select SSH username with private key, under id write key-pair, under username write ec2-user, under private key choose enter directly then a box will open go to the location were ur key pair is using git bash and type cat and the name of the key pair then copy everything displayed go back to jenkins and paste it on the box then click on create
+  
+- Go to your vscode terminal and type which ansible to know the path of ansible e.g /usr/bin/ansible then go to jenkins, tools, scroll down to where you see add ansible then click on it then give the name as ansible and path as /usr/bin/
+  
+- go to your jenkinsfile and replace everything with the script below and make changes with your own details
+
+
+
+pipeline {
+  agent any
+
+
+  environment {
+      ANSIBLE_CONFIG="${WORKSPACE}/deploy/ansible.cfg"
+    }
+
+
+  parameters {
+      string(name: 'inventory', defaultValue: 'dev',  description: 'This is the inventory file for the environment to deploy configuration')
+    }
+
+
+  stages{
+      stage("Initial cleanup") {
+          steps {
+            dir("${WORKSPACE}") {
+              deleteDir()
+            }
+          }
+        }
+
+
+      stage('Checkout SCM') {
+         steps{
+            git branch: 'main', url: 'https://github.com/Mirahkeyz/ansible-config.git'
+         }
+       }
+
+
+      stage('Prepare Ansible For Execution') {
+        steps {
+          sh 'echo ${WORKSPACE}' 
+          sh 'sed -i "3 a roles_path=${WORKSPACE}/roles" ${WORKSPACE}/deploy/ansible.cfg'  
+        }
+     }
+
+
+      stage('Run Ansible playbook') {
+        steps {
+           ansiblePlaybook become: true, colorized: true, credentialsId: 'private-key', disableHostKeyChecking: true, installation: 'ansible', inventory: 'inventory/${inventory}', playbook: 'playbooks/site.yml'
+         }
+      }
+
+
+      stage('Clean Workspace after build'){
+        steps{
+          cleanWs(cleanWhenAborted: true, cleanWhenFailure: true, cleanWhenNotBuilt: true, cleanWhenUnstable: true, deleteDirs: true)
+        }
+      }
+   }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

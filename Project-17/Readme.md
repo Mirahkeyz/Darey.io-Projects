@@ -300,6 +300,11 @@ preferred_number_of_public_subnets = 2
 
 ![Snipe 13](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/3fa43664-dc65-4065-a8c3-75af03c37f5d)
 
+The main.tf should look like this
+
+![Snipe 14](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/e252f078-7b74-4c6f-bf65-7bd7ef22caba)
+
+
 Run
 
 terraform init

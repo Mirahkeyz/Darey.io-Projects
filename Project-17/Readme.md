@@ -67,9 +67,13 @@ terraform plan
 
 ![Snipe 3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/89c993e6-9e39-458d-990c-7b0d380783e1)
 
+If we are good with the chages planned, run the command
 
+terraform apply
 
+![Snipe 4](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/09cb7492-bff9-4f86-8b34-4ec6a4650269)
 
+![Snipe 4 1](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f430d2f0-7505-4dd6-99e2-ad7767ca4f04)
 
 
 

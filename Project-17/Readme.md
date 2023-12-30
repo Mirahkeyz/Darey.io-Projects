@@ -41,7 +41,7 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# Create VPC
+ Create VPC
 resource "aws_vpc" "narbyd-vpc" {
   cidr_block                     = "172.16.0.0/16"
   enable_dns_support             = "true"
@@ -59,12 +59,13 @@ terraform init
 
 ![Snipe 2](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ae95acbc-6042-4036-b707-ef6b1d8a011b)
 
+A new file has been created: .terraform. This is where Terraform keeps plugins.
 
+we should check to see what terraform intends to create before we tell it to go ahead and create it by running the command
 
+terraform plan
 
-
-
-
+![Snipe 3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/89c993e6-9e39-458d-990c-7b0d380783e1)
 
 
 

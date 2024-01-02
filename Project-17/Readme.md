@@ -3,13 +3,13 @@
 # Prerequisites:
 
 - AWS account;
-- AWS Identify and Access Management (IAM) credentials and programmatic access.
+- AWS Identify and Access Management (IAM) security credentials and programmatic access.
 - Set up AWS credentials locally with aws configure in the AWS Command Line Interface (CLI)
 
   To write quality Terraform codes, we need to:
 
 - Understand the goal of the desired infrastructure.
-- Ability to effectively use up to date Terraform documentation. Click here
+- Ability to effectively use up to date Terraform documentation.
 
 The resources to be created include:
 

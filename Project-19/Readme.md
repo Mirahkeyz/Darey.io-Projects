@@ -58,6 +58,209 @@ The steps to Re-initialize Terraform to use S3 backend:
 - Add outputs
 - terraform apply
 
+Add the below code to the _main.tf file in the root module
+
+resource "aws_s3_bucket" "terraform_state" {
+  bucket = "narbyd-dev-terraform-bucket"
+  # Enable versioning so we can see the full revision history of our state files
+  versioning {
+    enabled = true
+  }
+  # Enable server-side encryption by default
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+}
+
+Terraform stores Passwords and secret keys processed by resources in the state files. Hence, we should enable encryption with server_side_encryption_configuration in the above code.
+
+Next, we will create a DynamoDB table to handle locks and perform consistency checks. In previous projects, locks were handled with a local file as shown in terraform.tfstate.lock.info. Since we now have a team mindset, causing us to configure S3 as our backend to store state file, we will do the same to handle locking. Therefore we will use a cloud storage database like DynamoDB so that anyone running Terraform against the same infrastructure can use a central location to control a situation where Terraform is running at the same time from multiple different people.
+
+Dynamo DB resource for locking and consistency checking:
+
+resource "aws_dynamodb_table" "terraform_locks" {
+  name         = "narbyd-terraform-locks"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "LockID"
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+}
+
+Terraform expects that both S3 bucket and DynamoDB resources are already created before we configure the backend. So, let us run terraform apply to provision resources.
+
+The S3 bucket we created earlier in the project
+
+![Snipe 32](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/745ad8fe-12ee-4adf-923c-463b91d5f673)
+
+# Create the dynamoDB table
+
+![Snipe 33](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/4ccf50d6-ecf4-4ffc-82db-00674c7227cf)
+
+Configure S3 Backend by adding the code snippet to backend.tf
+
+terraform {
+  backend "s3" {
+    bucket         = "narbyd-dev-terraform-bucket"
+    key            = "global/s3/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-locks"
+    encrypt        = true
+  }
+}
+
+
+Run
+
+$ terraform init
+
+Confirm you are OK to change the backend by typing yes
+
+DynamoDB table which we created has an entry which includes state file status.
+
+Navigate to the DynamoDB table inside AWS and leave the page open in your browser.
+
+Run
+
+$ terraform plan
+
+Add Terraform Output
+
+Before you run terraform apply let us add an output so that the S3 bucket Amazon Resource Names ARN and DynamoDB table name can be displayed.
+
+Create a new file and name it output.tf and add below code
+
+output "s3_bucket_arn" {
+  value       = aws_s3_bucket.terraform_state.arn
+  description = "The ARN of the S3 bucket"
+}
+output "dynamodb_table_name" {
+  value       = aws_dynamodb_table.terraform_locks.name
+  description = "The name of the DynamoDB table"
+}
+
+Then run terraform apply
+
+Before we run the $ terraform destroy command, we need to comment out the backend configurations and run
+
+$ terraform init -migrate-state
+
+to restore the former state of the terraform.tfstate file.
+
+Then we run terraform destroy
+
+To use our new setup, we uncomment the backend configurations and run
+
+$ terraform init
+
+This configures terraform to use the backend.
+
+N/B:
+
+To upload the terraform.tfstate and the lock file to the S3 bucket and dynomoDB table, we run terraform init after provisioning the other resources.
+Our application wont work because in our shell script that was passed to launch, some endpoints like the RDS and EFS access points are needed and they have not been created yet. We will employ the use of Ansible and Packer to fix this in Project-20.
+We have successfully refactored the code to use modules, configured the S3 bucket and the DynamoDB to hold the terraform.tfstate file and lock files respectively.
+
+This project continues in project 2o
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

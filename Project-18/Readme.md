@@ -970,8 +970,629 @@ From the Architetcture, we need Auto Scaling Groups for bastion, nginx, wordpres
 We will create two files
 
 asg-bastion-nginx.tf which will contain Launch Template and Auto scaling group for Bastion and Nginx
+
 asg-wordpress-tooling.tf which will contain Launch Template and Austoscaling group for wordpress and tooling.
+
 Create asg-bastion-nginx.tf and paste all the code snippet below;
+
+ creating sns topic for all the auto scaling groups
+resource "aws_sns_topic" "narbyd-sns" {
+name = "Default_CloudWatch_Alarms_Topic"
+}
+
+Create notification for all the auto scaling groups
+
+resource "aws_autoscaling_notification" "narbyd_notifications" {
+  group_names = [
+    aws_autoscaling_group.bastion-asg.name,
+    aws_autoscaling_group.nginx-asg.name,
+    aws_autoscaling_group.wordpress-asg.name,
+    aws_autoscaling_group.tooling-asg.name,
+  ]
+  notifications = [
+    "autoscaling:EC2_INSTANCE_LAUNCH",
+    "autoscaling:EC2_INSTANCE_TERMINATE",
+    "autoscaling:EC2_INSTANCE_LAUNCH_ERROR",
+    "autoscaling:EC2_INSTANCE_TERMINATE_ERROR",
+  ]
+
+  topic_arn = aws_sns_topic.narbyd-sns.arn
+}
+
+# launch template for bastion
+
+resource "random_shuffle" "az_list" {
+  input        = data.aws_availability_zones.available.names
+}
+
+resource "aws_launch_template" "bastion-launch-template" {
+  image_id               = var.ami
+  instance_type          = "t2.micro"
+  vpc_security_group_ids = [aws_security_group.bastion_sg.id]
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ip.id
+  }
+
+  key_name = var.keypair
+
+  placement {
+    availability_zone = random_shuffle.az_list.result
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+
+   tags = merge(
+    var.tags,
+    {
+      Name = "bastion-launch-template"
+    },
+  )
+  }
+
+  user_data = filebase64("${path.module}/bastion.sh")
+}
+
+# ---- Autoscaling for bastion  hosts -------
+
+resource "aws_autoscaling_group" "bastion-asg" {
+  name                      = "bastion-asg"
+  max_size                  = 2
+  min_size                  = 1
+  health_check_grace_period = 300
+  health_check_type         = "ELB"
+  desired_capacity          = 1
+
+  vpc_zone_identifier = [
+    aws_subnet.public[0].id,
+    aws_subnet.public[1].id
+  ]
+
+  launch_template {
+    id      = aws_launch_template.bastion-launch-template.id
+    version = "$Latest"
+  }
+  tag {
+    key                 = "Name"
+    value               = "bastion"
+    propagate_at_launch = true
+  }
+
+}
+
+# launch template for nginx
+
+resource "aws_launch_template" "nginx-launch-template" {
+  image_id               = var.ami
+  instance_type          = "t2.micro"
+  vpc_security_group_ids = [aws_security_group.nginx-sg.id]
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ip.id
+  }
+
+  key_name =  var.keypair
+
+  placement {
+    availability_zone = random_shuffle.az_list.result
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = merge(
+    var.tags,
+    {
+      Name = "nginx-launch-template"
+    },
+  )
+  }
+
+  user_data = filebase64("${path.module}/nginx.sh")
+}
+
+# ------ Autoscalaling group for reverse proxy nginx ---------
+
+resource "aws_autoscaling_group" "nginx-asg" {
+  name                      = "nginx-asg"
+  max_size                  = 2
+  min_size                  = 1
+  health_check_grace_period = 300
+  health_check_type         = "ELB"
+  desired_capacity          = 1
+
+  vpc_zone_identifier = [
+    aws_subnet.public[0].id,
+    aws_subnet.public[1].id
+  ]
+
+  launch_template {
+    id      = aws_launch_template.nginx-launch-template.id
+    version = "$Latest"
+  }
+
+  tag {
+    key                 = "Name"
+    value               = "nginx"
+    propagate_at_launch = true
+  }
+
+}
+
+# attaching autoscaling group of nginx to external load balancer
+resource "aws_autoscaling_attachment" "asg_attachment_nginx" {
+  autoscaling_group_name = aws_autoscaling_group.nginx-asg.id
+  alb_target_group_arn   = aws_lb_target_group.nginx-tgt.arn
+}
+
+Make sure to declare the variables for var.ami and var.keypair in the vars.tf file.
+
+variable "ami" {
+  type        = string
+  description = "AMI ID for launch template"
+}
+
+variable "keypair" {
+  type        = string
+  description = "keypair for the instances"
+}
+
+And in the terraform.tfvars add the following
+
+ami = "ami-03951dc3553ee499f"
+
+keypair = "dybran-ec2"
+
+Autoscaling for wordpress and tooling will be created in a seperate file.
+
+Create asg-wordpress-tooling.tf and paste the following code
+
+# launch template for wordpress
+
+resource "aws_launch_template" "wordpress-launch-template" {
+  image_id               = var.ami
+  instance_type          = "t2.micro"
+  vpc_security_group_ids = [aws_security_group.webserver-sg.id]
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ip.id
+  }
+
+  key_name = var.keypair
+
+  placement {
+    availability_zone = random_shuffle.az_list.result
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = merge(
+    var.tags,
+    {
+      Name = "wordpress-launch-template"
+    },
+  )
+
+  }
+
+  user_data = filebase64("${path.module}/wordpress.sh")
+}
+
+# ---- Autoscaling for wordpress application
+
+resource "aws_autoscaling_group" "wordpress-asg" {
+  name                      = "wordpress-asg"
+  max_size                  = 2
+  min_size                  = 1
+  health_check_grace_period = 300
+  health_check_type         = "ELB"
+  desired_capacity          = 1
+  vpc_zone_identifier = [
+
+    aws_subnet.private[0].id,
+    aws_subnet.private[1].id
+  ]
+
+  launch_template {
+    id      = aws_launch_template.wordpress-launch-template.id
+    version = "$Latest"
+  }
+  tag {
+    key                 = "Name"
+    value               = "wordpress"
+    propagate_at_launch = true
+  }
+}
+
+# attaching autoscaling group of  wordpress application to internal loadbalancer
+resource "aws_autoscaling_attachment" "asg_attachment_wordpress" {
+  autoscaling_group_name = aws_autoscaling_group.wordpress-asg.id
+  alb_target_group_arn   = aws_lb_target_group.wordpress-tgt.arn
+}
+
+# launch template for toooling
+resource "aws_launch_template" "tooling-launch-template" {
+  image_id               = var.ami
+  instance_type          = "t2.micro"
+  vpc_security_group_ids = [aws_security_group.webserver-sg.id]
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ip.id
+  }
+
+  key_name = var.keypair
+
+  placement {
+    availability_zone = "random_shuffle.az_list.result"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "tooling-launch-template"
+    },
+  )
+
+  }
+
+  user_data = filebase64("${path.module}/tooling.sh")
+}
+
+# ---- Autoscaling for tooling -----
+
+resource "aws_autoscaling_group" "tooling-asg" {
+  name                      = "tooling-asg"
+  max_size                  = 2
+  min_size                  = 1
+  health_check_grace_period = 300
+  health_check_type         = "ELB"
+  desired_capacity          = 1
+
+  vpc_zone_identifier = [
+
+    aws_subnet.private[0].id,
+    aws_subnet.private[1].id
+  ]
+
+  launch_template {
+    id      = aws_launch_template.tooling-launch-template.id
+    version = "$Latest"
+  }
+
+  tag {
+    key                 = "Name"
+    value               = "tooling"
+    propagate_at_launch = true
+  }
+}
+# attaching autoscaling group of  tooling application to internal loadbalancer
+resource "aws_autoscaling_attachment" "asg_attachment_tooling" {
+  autoscaling_group_name = aws_autoscaling_group.tooling-asg.id
+  alb_target_group_arn   = aws_lb_target_group.tooling-tgt.arn
+}
+
+Create the files - bastion.sh, nginx.sh, tooling.sh and wordpress.sh . These will contain the scripts to be used to provision the bastion, nginx, tooling and wordpress instances respectively. Click here to see the various files and scripts.
+
+We will also create a file output.tf. This file is responsible for the display of some needed informaation/values.
+
+output "alb_dns_name" {
+  value = aws_lb.ext-alb.dns_name
+}
+
+output "alb_target_group_arn" {
+  value = aws_lb_target_group.nginx-tgt.arn
+}
+
+# STORAGE AND DATABASE
+
+Create Elastic File System (EFS).
+
+In order to create an EFS you need to create a KMS key.
+
+AWS Key Management Service (KMS) makes it easy to create and manage cryptographic keys and control their use across a wide range of AWS services and in applications.
+
+Create efs.tf and add the following code
+
+ create key from key management system
+resource "aws_kms_key" "narbyd-kms" {
+  description = "KMS key "
+  policy      = <<EOF
+  {
+  "Version": "2012-10-17",
+  "Id": "kms-key-policy",
+  "Statement": [
+    {
+      "Sid": "Enable IAM User Permissions",
+      "Effect": "Allow",
+      "Principal": { "AWS": "arn:aws:iam::${var.account_no}:user/segun" },
+      "Action": "kms:*",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+ create key alias
+resource "aws_kms_alias" "alias" {
+  name          = "alias/kms"
+  target_key_id = aws_kms_key.narbyd-kms.key_id
+}
+
+Next, we need to create an EFS and it mount targets.We will use the code snippet below
+
+# create Elastic file system
+resource "aws_efs_file_system" "narbyd-efs" {
+  encrypted  = true
+  kms_key_id = aws_kms_key.narbyd-kms.arn
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "narbyd-EFS"
+    },
+  )
+}
+
+# set first mount target for the EFS 
+resource "aws_efs_mount_target" "subnet-1" {
+  file_system_id  = aws_efs_file_system.narbyd-efs.id
+  subnet_id       = aws_subnet.private[2].id
+  security_groups = [aws_security_group.datalayer-sg.id]
+}
+
+ set second mount target for the EFS 
+resource "aws_efs_mount_target" "subnet-2" {
+  file_system_id  = aws_efs_file_system.narbyd-efs.id
+  subnet_id       = aws_subnet.private[3].id
+  security_groups = [aws_security_group.datalayer-sg.id]
+}
+
+ create access point for wordpress
+resource "aws_efs_access_point" "wordpress" {
+  file_system_id = aws_efs_file_system.narbyd-efs.id
+
+  posix_user {
+    gid = 0
+    uid = 0
+  }
+
+  root_directory {
+    path = "/wordpress"
+
+    creation_info {
+      owner_gid   = 0
+      owner_uid   = 0
+      permissions = 0755
+    }
+
+  }
+
+}
+
+ create access point for tooling
+resource "aws_efs_access_point" "tooling" {
+  file_system_id = aws_efs_file_system.narbyd-efs.id
+  posix_user {
+    gid = 0
+    uid = 0
+  }
+
+  root_directory {
+
+    path = "/tooling"
+
+    creation_info {
+      owner_gid   = 0
+      owner_uid   = 0
+      permissions = 0755
+    }
+
+  }
+}
+
+# Create MySQL RDS
+
+The RDS will be created using the code snippet in rds.tf file:
+
+ This section will create the subnet group for the RDS  instance using the private subnet
+resource "aws_db_subnet_group" "narbyd-rds" {
+  name       = "narbyd-rds"
+  subnet_ids = [aws_subnet.private[2].id, aws_subnet.private[3].id]
+
+ tags = merge(
+    var.tags,
+    {
+      Name = "narbyd-RDS"
+    },
+  )
+}
+
+ create the RDS instance with the subnets group
+resource "aws_db_instance" "narbyd-rds" {
+  allocated_storage      = 20
+  storage_type           = "gp2"
+  engine                 = "mysql"
+  engine_version         = "5.7"
+  instance_class         = "db.t2.micro"
+  name                   = "narbyd-db"
+  username               = var.master-username
+  password               = var.master-password
+  parameter_group_name   = "default.mysql5.7"
+  db_subnet_group_name   = aws_db_subnet_group.narbyd-rds.name
+  skip_final_snapshot    = true
+  vpc_security_group_ids = [aws_security_group.datalayer-sg.id]
+  multi_az               = "true"
+}
+
+We will declare the variables master-username and master-password in the vars.tf file.
+
+variable "master-username" {
+  type        = string
+  description = "RDS admin username"
+}
+
+variable "master-password" {
+  type        = string
+  description = "RDS master password"
+}
+
+In the terraform.tfvars
+
+master-username = "miracle"
+
+master-password = "devopspbl"
+
+We will declare the variable for the account number.
+
+variable "account_no" {
+  type        = number
+  description = "the account number"
+}
+
+and add update the terraform.tfvars
+
+account_no = "153600809351"
+
+Go through the codes and make sure that all the variables are declared in the vars.tf and terraform.tfvars.
+
+We can now run the commands
+
+$ terraform init
+
+$ terraform plan
+
+If everything is alright in the plan, we then create the resources by running the command
+
+$ terraform apply
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

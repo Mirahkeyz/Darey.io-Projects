@@ -155,7 +155,25 @@ a845868b3a404f39b48b1b05137b4888
 
           # Configure Github Credentials in Github
 
-
+          - In Github, navigate to your profile, Click on settings, Click on Developer settings
+          - Generate an access token
+          - copy the access token and save in a notepad
+          - In jenkins, navigate to Manage Jenkins, Click on credentials
+          - Click on global, select Add credentials
+          - select username and password. use the Access token generated earlier as your password and specify anything descriptive as your I.D
+          - in the credentials section, you will be able to see the created credential
+          - Create a second credential for AWS secret and access key. if you have installed the AWS credential plugin you will see the AWS credentials as shown below . simply add the AWS secret and access key generated from AWS console. 
+           
+          1. Set up a Jenkins Multibranch Pipeline
+         
+             - From the Jenkins dashboard, click on 'New Item'
+             - Give it a name and description and select Multibranch Pipeline
+             - select the type of source code and the jenkinsfile
+             - select the credentials to be used to connect to Github from jenkins
+             - Add the repository url you forked
+             - leave eveything at default and hit save
+             - you will immediately see the scanning of the repository for branches and the jenkinsfile
+           
 
 
 

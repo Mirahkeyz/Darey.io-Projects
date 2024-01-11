@@ -89,6 +89,71 @@ cdbab5b31b8fb59377fa0203826aeb834bc401a01aa24252a3194f4846deb6d9
 
    docker exec -it  cdbab5b31b8f   /bin/bash
 
+![Snipe 39](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0de965aa-d691-41a9-b118-57a7b402d661)
+
+6. Retrieve the initial jenkins admin password
+
+   jenkins@cdbab5b31b8f:/app$ cat /var/jenkins_home/secrets/initialAdminPassword
+a845868b3a404f39b48b1b05137b4888
+
+   ![Snipe 40](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0485e8d6-4e2b-4c58-8e07-8be42fb8710f)
+
+7. Installing jenkins plugins
+
+   - paste the initial password in the web
+   - click "install suggested plugins"
+  
+8. create admin user and access jenkins
+
+   # Setting up Jenkins for Terraform CI/CD
+
+   1. Fork the directory below into your own github account
+  
+   https://github.com/darey-devops/terraform-aws-pipeline.git
+
+   2. Do the following to test that the code can create existing resources:
+  
+      A. The Provider.tf file has an S3 backend configuration. You will need to create your own bucket and update the code
+      - Create an S3 bucket in your AWS account
+      - update the bucket naame from the backend configuration
+      B. Push your latest changes to github
+
+      C. Run Terraform init, plan and apply and confirm everything works fine
+
+       ![Snipe 51](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/93cf8e18-e455-411b-92dd-a7bdb2d7a92b)
+
+       ![Snipe 52](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/97807bdd-f4cb-44eb-acf5-13a18ac6da85)
+
+       ![Snipe 53](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5137c5f0-60a8-4ddf-8191-9fc3b1e514a1)
+
+       ![Snipe 54](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a5ff8228-b3ef-4945-ae8c-2086f36aa27b)
+
+       ![Snipe 55](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/e386b53f-b774-4fd8-8cb3-8a435078106b)
+
+        ![Snipe 56](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/6c13bc58-91d1-47c6-b588-237ef3f4bc32)
+
+        ![Snipe 57](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/8e14d0ad-57e5-4d89-82f0-6cbc12847fd2)
+
+       # Connect The Github Repository to Jenkins
+
+       1. Install Jenkins Github Plugin:
+     
+          - Navigate to Manage Jenkins go to Plugins after that click on Available plugins and search for Github Integration
+          - install the Github Integration
+         
+          ![Snipe 45](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f0e226b9-35cd-4a4e-9a40-ddc8bcbec4c1)
+
+       2. Install the plugins below as you did above 
+
+          Terraform plugins
+
+          AWS Credentials Plugin
+
+          ![Snipe 48](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/dc08cd7e-3029-4dfe-bd90-368c7127e503)
+
+          ![Snipe 49](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/8603967c-c558-400c-acfc-1dff32918b86)
+
+          # Configure Github Credentials in Github
 
 
 
@@ -102,6 +167,13 @@ cdbab5b31b8fb59377fa0203826aeb834bc401a01aa24252a3194f4846deb6d9
 
 
 
+
+
+
+
+
+
+          
 
 
 

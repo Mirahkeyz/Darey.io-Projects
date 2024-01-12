@@ -106,6 +106,10 @@ Finally, this line switches back to the jenkins user, returning to a lower privi
 
 
 
+
+
+
+
 # Building and running the docker image
 
 Next is to build the docker image and run it for further configuration

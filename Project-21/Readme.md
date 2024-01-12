@@ -52,19 +52,19 @@ Lets go through that quickly:
 
 # Explaining The Dockerfile
 
-1. Use the Official Jenkins Base Image
+1. # Use the Official Jenkins Base Image
 
    FROM jenkins/jenkins:lts
 
 This line specifies the base image for your Dockerfile . in this case , it's using the Jenkins official Long Term Support (LTS)
 
-2. Switch to the root user to add additional packages
+2. # Switch to the root user to add additional packages
 
      USER root
 
    Thus command switches to the root user within the docker image. This is done to perform actions that require elevated permissions such as installing packages
 
-3. Install necessary tools and dependencies (e.g Git, Unzip, Wget)
+3. # Install necessary tools and dependencies (e.g Git, Unzip, Wget)
 
     RUN apt-get update && apt-get install -y \
     git \
@@ -75,7 +75,7 @@ This line specifies the base image for your Dockerfile . in this case , it's usi
 
 This sections installs various tools and dependencies needed for the image. 
 
-4. Install Terraform
+4. # Install Terraform
 
    RUN apt-get update && apt-get install -y gnupg software-properties-common wget \
     && wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | tee /usr/share/keyrings/hashicorp-archive-keyring.gpg \
@@ -85,6 +85,26 @@ This sections installs various tools and dependencies needed for the image.
     && rm -rf /var/lib/apt/lists/*
 
 This step installs Terraform. it follows step as before: updating the package list, installing dependencies
+
+5. # Set the working directory
+
+   WORKDIR /app
+
+This line sets the working directory for subsequent commands to /app. This is where you will be when you enter the container
+
+6. # Prints Terraform version to verify installation
+
+   RUN terraform --version
+
+This command prints the version of Terraform to the console, allowing you to verify that the installation is successful
+
+7. # Switch back to the jenkins user
+
+   USER jenkins
+
+Finally, this line switches back to the jenkins user, returning to a lower priviledge level.
+
+
 
 # Building and running the docker image
 

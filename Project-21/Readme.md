@@ -50,6 +50,42 @@ Lets go through that quickly:
 
 ![Snipe 34](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c655bb6a-baa8-4569-9aba-2d2f7362092a)
 
+# Explaining The Dockerfile
+
+1. Use the Official Jenkins Base Image
+
+   FROM jenkins/jenkins:lts
+
+This line specifies the base image for your Dockerfile . in this case , it's using the Jenkins official Long Term Support (LTS)
+
+2. Switch to the root user to add additional packages
+
+     USER root
+
+   Thus command switches to the root user within the docker image. This is done to perform actions that require elevated permissions such as installing packages
+
+3. Install necessary tools and dependencies (e.g Git, Unzip, Wget)
+
+    RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    wget \
+    software-properties-common \
+    && rm -rf /var/lib/apt/lists/*
+
+This sections installs various tools and dependencies needed for the image. 
+
+4. Install Terraform
+
+   RUN apt-get update && apt-get install -y gnupg software-properties-common wget \
+    && wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | tee /usr/share/keyrings/hashicorp-archive-keyring.gpg \
+    && gpg --no-default-keyring --keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg --fingerprint \
+    && echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list \
+    && apt-get update && apt-get install -y terraform \
+    && rm -rf /var/lib/apt/lists/*
+
+This step installs Terraform. it follows step as before: updating the package list, installing dependencies
+
 # Building and running the docker image
 
 Next is to build the docker image and run it for further configuration

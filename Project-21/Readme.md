@@ -106,10 +106,6 @@ Finally, this line switches back to the jenkins user, returning to a lower privi
 
 
 
-
-
-
-
 # Building and running the docker image
 
 Next is to build the docker image and run it for further configuration
@@ -134,6 +130,20 @@ cdbab5b31b8fb59377fa0203826aeb834bc401a01aa24252a3194f4846deb6d9
 
 ![Snipe 36](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/4f0fc512-f621-4718-9f38-dcddfb29081f)
 
+
+# Lets break down that command for better understanding
+
+docker run: This is the command used to run a docker image
+
+-d: This flag stands for "detach." It runs the container in the background, allowing you to continue using the terminal for other commands
+
+-p 8080:8080 : This flag maps the port 8080 from the host to the port 8080 inside the container. It means that you can access the application running inside the container on your host machine's port 8080.
+
+--name jenkins-server: This flag assigns a name to the container. In this case the name is set to "Jenkins-server"
+
+Jenkins-server: This is the name of the Docker image that you want to run. It refers to the image named "Jenkins-server"
+
+
 3. check that the container is running : docker ps
 
     CONTAINER ID   IMAGE            COMMAND                  CREATED              STATUS              PORTS                               NAMES
@@ -150,6 +160,19 @@ cdbab5b31b8fb59377fa0203826aeb834bc401a01aa24252a3194f4846deb6d9
    docker exec -it  cdbab5b31b8f   /bin/bash
 
 ![Snipe 39](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0de965aa-d691-41a9-b118-57a7b402d661)
+
+Lets break the down the command:
+
+docker exec: This command is used to execute a command in a running Docker container
+
+-it: These flags are often used together
+    -  -i stands for "interactive" , which allows you to interact with the container
+    -  -t allocates a pseudo -TTY, or terminal enabling a more interactive session
+
+ cdbab5b31b8f: This is the Container ID or Container Name. It uniquely identifies the running container 
+
+ /bin/bash: This is the command you want to execute inside the container
+ 
 
 6. Retrieve the initial jenkins admin password
 

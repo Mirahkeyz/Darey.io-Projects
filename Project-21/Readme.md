@@ -256,7 +256,47 @@ a845868b3a404f39b48b1b05137b4888
              - Add the repository url you forked
              - leave eveything at default and hit save
              - you will immediately see the scanning of the repository for branches and the jenkinsfile
-           
+
+           # Lets Talk About The Jenkinsfile
+
+         # Pipeline 
+
+           Pipeline {...}: This is THE Wrapper for the entire pipeline script. Everything that defines what the pipeline does is included within these braces
+
+         # Agent
+
+          agent any: This line specifies that the pipeline can run on any available agent
+
+         # Environment
+
+           environment {....}: This section is used to define environment variables that are applicable to all stages of the pipeline.
+
+           TF_CLI_ARGS= '-no-color': sets an environment variable for Terraform. it tells Terraform to not colorize the output which can be used for logging readability in CI/CD environments.
+
+          ## Stages
+
+           stages {...}: This block defines the various stages of the pipeline
+
+            stage('checkout') {...}
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
 
 
 

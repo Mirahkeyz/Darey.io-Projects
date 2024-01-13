@@ -273,11 +273,33 @@ a845868b3a404f39b48b1b05137b4888
 
            TF_CLI_ARGS= '-no-color': sets an environment variable for Terraform. it tells Terraform to not colorize the output which can be used for logging readability in CI/CD environments.
 
-          ## Stages
+      # Stages
 
            stages {...}: This block defines the various stages of the pipeline
 
-            stage('checkout') {...}
+            stage('checkout') {...}: This is the first stage, named 'checkout'. it's typically used to check out source code from a version control system
+
+            checkout scm: checks out source code from the Source Control Management (SCM) system configured for the job
+
+      # Stage: Terraform Plan
+
+       stage('Terraform Plan') {...}: This stage is responsible for running a Terraform plan
+
+       withCredentials([aws(...)]) {...}: This block securely injects AWS credentials into the environment
+
+        sh 'Terraform init': initializes Terraform in the current directory
+
+        sh 'Terraform plan -out=tfplan': Runs Terraform plan and output the plan to a file named 'Tfplan'
+
+      # Stage: Terraform Apply
+
+      stage('Terraform Apply') {...}: This stage applies the changes from Terraform plan to make infrastructure changes
+
+      when {...}:This block sets conditions for executing this stage. expression{env.BRANCH_NAME == 'main'}: This conditions check if the pipeline is running on the main branch
+
+      expression {...}: checks if the build was triggered by a user action
+
+      input message: 'Do you want to apply changes?', ok: 'Yes' : A manual intervention step asking for confirmation before proceeding. if yes is clicked, it runs the terraform init and apply otherwise the pipeline is aborted.
           
 
 

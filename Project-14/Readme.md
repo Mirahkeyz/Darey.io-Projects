@@ -313,66 +313,84 @@ ssh_args = -o ControlMaster=auto -o ControlPersist=30m -o ControlPath=/tmp/ansib
 
 # CI/CD PIPELINE FOR TODO APPLICATION
 
-- Fork the repository below into your GitHub account https://github.com/darey-devops/php-todo.git. Also clone it into your jenkins server (home directory). By going to the vscode terminal and typing git clone and paste the link
+# Phase 1 – Prepare Jenkins
 
-- Install php dependencies with the script below
-  
-sudo yum module reset php -y
-sudo yum module enable php:remi-7.4 -y
-sudo yum install -y php php-common php-mbstring php-opcache php-intl php-xml php-gd php-curl php-mysqlnd php-fpm php-json
-sudo systemctl start php-fpm
-sudo systemctl enable php-fpm
+============================
 
-- Install composer
-  
-curl -sS https://getcomposer.org/installer | php 
+1. Fork the repository below into your GitHub account
+https://github.com/darey-devops/php-todo.git
 
-sudo mv composer.phar /usr/bin/composer
+2. On you Jenkins server, install PHP, its dependencies and Composer tool (Feel free to do this manually at first, then update your Ansible accordingly later)
 
-composer --version
+yum module reset php -y
 
--  Go back to jenkins, plugins, available plugins, install plot plugins and artifactory plugins
-  
-- spin up a rhel instance and name it artifactory edit the inbound rules add 8081 and 8082
-  
-- Copy the private ipv4 of artifactory and go to vscode, CI under inventory comment everything and paste the the ipv4 address under artifactory and it should be uncomment
-  
-- Go to site.yml under playbooks and comment nginx and uncomment artifactory then go to uat-webservers.yml under static assignments and comment nginx then uncomment artifactory
-  
-- update git with latest changes
+yum module enable php:remi-7.4 -y
 
-- go to jenkins click on scan repository then click on main then click on build with parameters then type ci
+yum install -y php php-common php-mbstring php-opcache php-intl php-xml php-gd php-curl php-mysqlnd php-fpm php-json
 
-- when it builds finish copy the public ip of artifactory go to your browser and paste e.g public ip:8081
-  
-- Login with user: admin password:password
-  
-- go back to ur jenkins dashboard click on systems then scroll down to Jfrog then under instance id type artifactory-server, under jfrog platform url paste ur link e.g http://public-ip:8081 then under username and password gv ur details apply and save
-  
-- Go to your dashboard and click on open blue ocean then click on new pipeline, select github then select php-todo as the repo then click on create pipeline
-  
-- Right click on it and create a file called jenkinsfile
-  
-- Spin up a new instance for your database
-  
-- Go to dev under inventory and comment nginx and uncomment db then replace the ip with the new private ip of the db instance
-  
-- Go to site.yml and comment artifactory and uncomment db
-  
-- go to uat-webservers.yml under static assignments and comment artifactory and uncomment db
-  
-- update git with latest changes
-  
-- go to jenkins dashboard  and scan repository
-  
-- go to vscode, roles, mysql, and then main.yml. inside the main.yml script, look for mysql_users then go down to host and replace the IP with your Jenkins server IP
+systemctl start php-fpm
 
-- update git wit latest changes, go to jenkins and scan repo
+systemctl enable php-fpm
 
-- go to the artifactory web and click on create repository then click on add repository, choose local repository, select Generic then for Repository key give it any name and click on create repository
+sudo apt install -y zip libapache2-mod-php phploc php-{xml,bcmath,bz2,intl,gd,mbstring,mysql,zip}
 
-- go to vscode, go to Jenkindfile under php-todo and paste the script below
+3. Install Jenkins plugins
 
+- Plot plugin
+
+- Artifactory plugin
+
+4. Spin up another server that will host the jfrog artifactory
+
+![Snipe 68](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/3cea70dc-a594-48d1-a221-99e99e670a5c)
+
+![Snipe 61](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/9fbf413f-cd72-47ce-905f-35d3886751fc)
+
+![Snipe 62](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ea148a62-d2ce-46a0-9452-3fd89d1961cb)
+
+![Snipe 63](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/77c7e31d-72dc-41d4-8432-6d351fa96f90)
+
+![Snipe 64](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a1cfaf8f-8965-47a2-b184-11c60ef397ac)
+
+![Snipe 65](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/3d6652da-4153-4bef-8556-3c5b547eeff0)
+
+We will use plot plugin to display tests reports, and code coverage information. The Artifactory plugin will be used to easily upload code artifacts into an Artifactory server.
+
+5. In Jenkins UI configure Artifactory
+
+   ![Snipe 66](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/473e6052-19c8-4650-9284-32456dde9164)
+
+  ![Snipe 67](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/b763644d-be72-452a-a6e2-ffb7adcd5c2d)
+
+# Phase 2 – Integrate Artifactory repository with Jenkins
+
+1. Create a dummy Jenkinsfile in the repository
+
+2. Using Blue Ocean, create a multibranch Jenkins pipeline
+
+3. On the database server, create database and user
+
+4. Install mysql client: sudo apt install mysql -y
+
+5. Login into the DB-server(mysql server) and set the the bind address to 0.0.0.0: sudo vi /etc/mysql/mysql.conf.d/mysqld.cnf
+
+6. Create database and user. NOTE: The task of setting the database is done by the MySQL ansible role
+
+Create database homestead;
+CREATE USER 'homestead'@'%' IDENTIFIED BY 'sePret^i';
+GRANT ALL PRIVILEGES ON * . * TO 'homestead'@'%';
+
+![Snipe 69](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ef08952a-ab30-46ff-9943-5a7828a3ca53)
+
+![Snipe 70](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c911ca2d-cd75-454d-8f80-10062a6a19a4)
+
+
+1. Update the database connectivity requirements in the file .env.sample
+
+   ![Snipe 71](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c65f6b30-01f0-45f4-86aa-4f1623f141ae)
+
+2. Update Jenkinsfile with proper pipeline configuration
+  
   pipeline {
     agent any
 
@@ -388,7 +406,7 @@ composer --version
 
     stage('Checkout SCM') {
       steps {
-            git branch: 'main', url: 'https://github.com/Mirahkeyz/php-todo.git'
+            git branch: 'main', url: 'https://github.com/darey-devops/php-todo.git'
       }
     }
 
@@ -404,17 +422,125 @@ composer --version
   }
 }
 
-- Go to your vscode terminal and type sudo yum install mysql -y
+3. We need to install mysql client on the Jenkins server and configure it.
 
-- Go to ur artifactory instance and edit the inbound rules TCP 3306 
+![Snipe 72](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f169d51b-8184-46ae-a5b4-51f1c418e5ac)
 
-- Type sudo mysql -u homestead -h (then paste ur artifactory instance private IP)
+![Snipe 73](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ff68c053-c393-4ac5-a9cc-c7c6d2b06679)
 
-- update git with latest changes
+![Snipe 74](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/b2a8585f-b4a1-4af5-ba11-45c800397a30)
+
+4. Bundle the application code into an artifact (archived package) and upload to Artifactory
+
+     Install Zip: Sudo apt install zip -y
+
+stage ('Package Artifact') {
+    steps {
+            sh 'zip -qr php-todo.zip ${WORKSPACE}/*'
+     }
+    }
+
+5. Publish the resulted artifact into Artifactory making sure ti specify the target as the name of the artifactory repository you created earlier
+
+   stage ('Upload Artifact to Artifactory') {
+          steps {
+            script { 
+                 def server = Artifactory.server 'artifactory-server'                 
+                 def uploadSpec = """{
+                    "files": [
+                      {
+                       "pattern": "php-todo.zip",
+                       "target": "PBL/php-todo",
+                       "props": "type=zip;status=ready"
+
+                       }
+                    ]
+                 }""" 
+
+                 server.upload spec: uploadSpec
+               }
+            }
+
+        }
+
+![Snipe 75](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c0999638-7e31-46b0-b9c3-7b93b1c104f8)
+
+Deploy the application to the dev environment by launching Ansible pipeline. Ensure you update your inventory/dev with the Private IP of your TODO-server and your site.yml file is updated with todo play.
+
+stage ('Deploy to Dev Environment') {
+    steps {
+    build job: 'ansible-project/main', parameters: [[$class: 'StringParameterValue', name: 'env', value: 'dev']], propagate: false, wait: true
+    }
+  }
+
+
+ ![Snipe 78](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7f3ddfa9-6b33-4de6-bf04-95b18df970c7)
+ 
+
+# SONARQUBE INSTALLATION
+
+SONARQUBE INSTALLATION SonarQube is a tool that can be used to create quality gates for software projects, and the ultimate goal is to be able to ship only quality software code.
+
+Despite that DevOps CI/CD pipeline helps with fast software delivery, it is of the same importance to ensure the quality of such delivery. Hence, we will need SonarQube to set up Quality gates. In this project we will use predefined Quality Gates (also known as The Sonar Way). Software testers and developers would normally work with project leads and architects to create custom quality gates.
+
+Setting Up SonarQube On the Ansible config management pipeline, execute the ansible playbook script to install sonarqube via a preconfigured sonarqube ansible role.
+
+![Snipe 76](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/df522c21-7efb-4316-8408-6991ae7391e6)
+
+When the pipeline is complete, access sonarqube from the browser using the <sonarqube_server_url>:9000/sonar
+
+![Snipe 77](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/92aa28b6-7486-4aff-8864-134d08f2dfd6)
+
+# CONFIGURE SONARQUBE AND JENKINS FOR QUALITY GATE
+
+![Snipe 79](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/01cf987c-0408-4c70-b067-77ffafdbca7c)
+
+- Install SonarQube Scanner plugin
+
+  ![Snipe 80](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/b46eb98f-b974-417d-b623-eaa2b690d11b)
+
+- Navigate to configure system in Jenkins. Add SonarQube server: Manage Jenkins > Configure System
+
+- To generate authentication token in SonarQube to to: User > My Account > Security > Generate Tokens
+
+- Setup SonarQube scanner from Jenkins – Global Tool Configuration. Go to: Manage Jenkins > Global Tool Configuration
+
+- Update Jenkins Pipeline to include SonarQube scanning and Quality Gate. Making sure to place it before the "package artifact stage" Below is the snippet for a Quality Gate stage in Jenkinsfile.
+
+stage('SonarQube Quality Gate') {
+    environment {
+        scannerHome = tool 'SonarQubeScanner'
+    }
+    steps {
+        withSonarQubeEnv('sonarqube') {
+            sh "${scannerHome}/bin/sonar-scanner"
+        }
+
+    }
+}
+
+# NOTE: The above step will fail because we have not updated sonar-scanner.properties.
+
+![Snipe 81](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c04da753-aa39-4290-8fd4-9aba873550a5)
+
+- Configure sonar-scanner.properties – From the step above, Jenkins will install the scanner tool on the Linux server. You will need to go into the tools directory on the server to configure the properties file in which SonarQube will require to function during pipeline execution. cd /var/lib/jenkins/tools/hudson.plugins.sonar.SonarRunnerInstallation/SonarQubeScanner/conf/.
+
+- Open sonar-scanner.properties file: sudo vi sonar-scanner.properties
+
+- Add configuration related to php-todo project
+
+sonar.host.url=http://<SonarQube-Server-IP-address>:9000
+sonar.projectKey=php-todo
+#----- Default source code encoding
+sonar.sourceEncoding=UTF-8
+sonar.php.exclusions=**/vendor/**
+sonar.php.coverage.reportPaths=build/logs/clover.xml
+sonar.php.tests.reportPath=build/logs/junit.xml 
+
+![Snipe 82](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a6f9660a-e382-4dc3-9fe1-5ff87d662e2f)
 
 
 
-  
 
 
 
@@ -427,6 +553,72 @@ composer --version
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+                    
 
 
 

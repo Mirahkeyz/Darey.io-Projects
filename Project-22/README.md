@@ -227,13 +227,20 @@ If everything works, you can open the browser and type http://publicIP:8085 You 
 
 ![Snipe 22](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/919df9b5-62bb-4b18-b71b-90ed66edc4d9)
 
+![Snipe 23](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/3ea76072-3655-4233-86f4-4c0bef59c341)
 
 
-PRACTICE TASK
+# PRACTICE TASK
+
 Implement a POC to migrate the PHP-Todo app into a containerized application.
 
+![Snipe 21](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/8c0123db-df43-4fb7-b398-1aedd43d9623)
 
+# Part 1
 
+Write a Dockerfile for the TODO app
+
+Run both database and app on your laptop Docker Engine Access the application from the browser
 
 
 

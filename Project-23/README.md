@@ -60,15 +60,31 @@ NOTE : As you proceed with configuration, ensure that all resources are appropri
 
 ![Snipe 5](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c8bd70ca-98bf-4ecd-9786-d2d022df766a)
 
+9. Create a Security Group for:
+    
+ - Application Load Balancer: ALB will be available from the Internet.
 
+![Snipe 6](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/19474dad-1af8-4337-907d-4faa588a7e20)
 
+10. - Bastion Servers:  Access to the Bastion servers should be allowed only from workstations that need to SSH into the bastion servers. Hence, you can use your workstation public IP address. To get this information, simply go to your terminal and type curl www.canhazip.com
 
+![Snipe 7](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/bf10959f-cad5-4713-a02b-428fc4fe3d33)
 
+11. - Nginx Servers: Access to Nginx should only be allowed from a Application Load balancer (ALB). Alt text
+   
+      ![Snipe 8](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/df914b40-0369-4ead-a97f-9d2e10da33a4)
 
+12. - Internal Application Load Balancer: ALB will be available from the Nginx servers.
 
+    ![Snipe 9](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a123b3a4-4a6c-45ba-b94b-3a101d4caa30)
 
+13. - Webservers: Access to Webservers should only be allowed from the Internal Application Load Balancer. Alt text
 
+      ![Snipe 10](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/41c90be8-c4f9-4a7f-8a76-cf732c619f89)
 
+14. - Data Layer: Access to the Data layer, which is comprised of Amazon Relational Database Service (RDS) and Amazon Elastic File System (EFS) must be carefully desinged – only webservers should be able to connect to RDS, while Nginx and Webservers will have access to EFS Mountpoint.
+
+    ![Snipe 11](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0f720e4e-29f4-4020-b1b5-6272e20c7908)
 
 
 

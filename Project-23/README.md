@@ -24,6 +24,43 @@ In this project, we will build a secure infrastructure inside AWS VPC (Virtual P
 
   https://www.youtube.com/watch?v=IjcHp94Hq8A
 
+  ![Snipe 1](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ae2ede73-03ce-4af1-9c2e-575182b847bf)
+
+NOTE : As you proceed with configuration, ensure that all resources are appropriately tagged, for example:
+
+- Project:<Give your project a name>
+
+- Environment:<dev>
+
+- Automated: (If you create a recource using an automation tool, it would be )
+ 
+ # Setting Up Infrastucture
+
+ 1. Create a VPC
+
+ ![Snipe 2](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c3fa559b-8e4e-4aaa-aaa4-13605712f062)
+
+ 2. Create subnets as shown in the architecture
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

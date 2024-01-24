@@ -42,7 +42,23 @@ NOTE : As you proceed with configuration, ensure that all resources are appropri
 
  2. Create subnets as shown in the architecture
 
+ ![Snipe 3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/8a212d26-1108-4997-bd1f-57287fb1a104)
 
+ 3. Create a route table for the public subnets
+
+ 4. Create a route table for the private subnets
+
+ 5. Create an Internet Gateway and attach it to VPC
+
+ 6. Create a Nat Gateway and assign one of the Elastic IPs (*The other 2 will be used by Bastion hosts)
+
+ 7. Edit routes of both public and private route-table and add Intenet Gateway and Nat Gateway to them
+
+ 8. Edit Subnet Associations of both Public and Private route-table and associate public and private subnets to them
+
+![Snipe 4](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/851ea247-655d-46bc-ac31-69f933a3f34f)
+
+![Snipe 5](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c8bd70ca-98bf-4ecd-9786-d2d022df766a)
 
 
 

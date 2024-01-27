@@ -387,7 +387,178 @@ From the created custom AMIs, create Launch templates for each of the instances
 
 ![Snipe 68](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/cacd13f3-84dd-42e6-a3c1-4883f5febf9b)
 
+Fill in the userdata for Bastion
+
+#!/bin/bash
+
+yum install -y mysql
+
+yum install -y git tmux
+
+yum install -y ansible
+
 ![Snipe 69](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5129cb46-2f13-477b-aece-705c967899b2)
+
+![Snipe 70](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/d8f3bf53-1cf9-47d0-aa2d-9a3768e5a150)
+
+Fill in the userdata for Nginx
+
+#!/bin/bash
+yum install -y nginx
+systemctl start nginx
+systemctl enable nginx
+git clone https://github.com/IwunzeGE/wakabetter-project-config.git
+mv /wakabetter-project-config/reverse.conf /etc/nginx/
+mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf-distro
+cd /etc/nginx/
+touch nginx.conf
+sed -n 'w nginx.conf' reverse.conf
+systemctl restart nginx
+rm -rf reverse.conf
+rm -rf /wakabetter-project-config
+
+Fill in the userdata for Tooling
+
+#!/bin/bash
+mkdir /var/www/
+sudo mount -t efs -o tls,accesspoint=fsap-087db5a73c7b8725b fs-0cf945c5a63141f5b:/ /var/www/
+yum install -y httpd 
+systemctl start httpd
+systemctl enable httpd
+yum module reset php -y
+yum module enable php:remi-7.4 -y
+yum install -y php php-common php-mbstring php-opcache php-intl php-xml php-gd php-curl php-mysqlnd php-fpm php-json
+systemctl start php-fpm
+systemctl enable php-fpm
+git clone https://github.com/IwunzeGE/DevopsToolingWebsite.git
+mkdir /var/www/html
+cp -R /DevopsToolingWebsite/html/*  /var/www/html/
+cd /DevopsToolingWebsite
+mysql -h zhikbee-rds.cg22cjxlsbrj.us-east-2.rds.amazonaws.com -u admin -p toolingdb < tooling-db.sql
+cd /var/www/html/
+touch healthstatus
+sed -i "s/$db = mysqli_connect('mysql.tooling.svc.cluster.local', 'admin', 'admin', 'tooling');/$db = mysqli_connect('zhikbee-rds.cg22cjxlsbrj.us-east-2.rds.amazonaws.com', 'admin', 'password', 'toolingdb');/g" functions.php
+chcon -t httpd_sys_rw_content_t /var/www/html/ -R
+systemctl restart httpd
+
+Fill in the userdata for Wordpress
+
+#!/bin/bash
+mkdir /var/www/
+sudo mount -t efs -o tls,accesspoint=fsap-028b8045c50f7e635 fs-0cf945c5a63141f5b:/ /var/www/
+yum install -y httpd 
+systemctl start httpd
+systemctl enable httpd
+yum module reset php -y
+yum module enable php:remi-7.4 -y
+yum install -y php php-common php-mbstring php-opcache php-intl php-xml php-gd php-curl php-mysqlnd php-fpm php-json
+systemctl start php-fpm
+systemctl enable php-fpm
+wget http://wordpress.org/latest.tar.gz
+tar xzvf latest.tar.gz
+rm -rf latest.tar.gz
+cp wordpress/wp-config-sample.php wordpress/wp-config.php
+mkdir /var/www/html/
+cp -R /home/ec2-user/wordpress/* /var/www/html/
+cd /var/www/html/
+touch healthstatus
+sed -i "s/localhost/zhikbee-rds.cg22cjxlsbrj.us-east-2.rds.amazonaws.com/g" wp-config.php 
+sed -i "s/username_here/admin/g" wp-config.php 
+sed -i "s/password_here/password/g" wp-config.php 
+sed -i "s/database_name_here/wordpressdb/g" wp-config.php 
+chcon -t httpd_sys_rw_content_t /var/www/html/ -R
+systemctl restart httpd
+
+Before creating the Auto Scaling Group for the webservers, we will go into the RDS and create the wordpress database
+
+![Snipe 79](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/98d27c3a-35dd-4024-b9d6-ec80c9e20123)
+
+# Create Auto Scaling Group
+
+For Bastion
+
+![Snipe 71](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/1d44a92f-c7fe-45a6-983c-aae833549f09)
+
+![Snipe 72](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/e0f0db95-8ab2-46b0-bedc-e0fc6b4cb93d)
+
+![Snipe 73](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/e80d5300-cdda-48a4-a38b-a7a6c31c4a4d)
+
+![Snipe 74](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/df233bb8-7bdb-45db-8b7d-a23473c20b14)
+
+For Nginx
+
+![Snipe 75](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/010768ef-b3df-4eb9-926c-9223c1cd24fe)
+
+![Snipe 76](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/cf093b05-f19f-4cf3-afe5-dbf08fe9df69)
+
+![Snipe 77](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/17edf578-e8a0-41b0-adcc-1ab3c79b68f9)
+
+![Snipe 78](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/108da242-a885-4457-a30c-25634e96b8bd)
+
+Open the browser incognito using "CTRL + SHIFT + n" and paste the domain name i.e tooling.mirahkeys.xyz
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

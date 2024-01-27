@@ -205,6 +205,306 @@ To configure RDS, follow steps below:
 
 ![Snipe 52](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/8e622c1a-7992-4971-86aa-b4679986e46c)
 
+Repeat the same procedure for internal ALB, select wordpress as the default target and create a rule to send traffic to tooling if the headers match our specified parameters.
+
+![hey](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/9a72acb3-df5a-4531-949e-dee199f0a991)
+
+![heyy](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/d6c7a87e-de1a-42f6-9f16-cdb3d245792b)
+
+![heyyy](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/595a46bd-cca8-4043-9626-6ab77760aec2)
+
+![heyyyy](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/4971c725-0c19-4a57-8866-3761f2fbcb78)
+
+![Snipe 53](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f4088084-a950-4abc-8f54-1a4bce8bc335)
+
+![Heyyyyy](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/1a8a7a16-a555-4d31-a0fa-27be3c661089)
+
+# SET UP COMPUTE RESOURCES
+
+We will be setting up the AMI for the nginx, bastion and webservers for their various Auto Scaling Groups.
+
+Launch 3 RHEL-8 instances - The AMIs will be used for the ASG. Lauch the instances in the default VPC.
+
+![heyyyyyy](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/d3da2723-7b74-4892-a4d7-7f26c89c6401)
+
+# For Bastion Host
+
+Run the following commands
+
+$ sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
+$ sudo yum install -y dnf-utils http://rpms.remirepo.net/enterprise/remi-release-8.rpm
+
+$ sudo yum install wget vim python3 telnet htop git mysql net-tools chrony -y
+
+$ sudo systemctl start chronyd
+
+$ sudo systemctl enable chronyd
+
+$ sudo systemctl status chronyd
+
+![Snipe 54](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/08a3eb17-5ce3-451c-a5e2-b4bef56dc22d)
+
+![Snipe 55](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/9f5704cd-2eaf-43d8-93f6-303b73fb73e4)
+
+![Snipe 56](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a1d31bb7-4992-40e8-b886-9de52b96417f)
+
+# For Nginx
+
+Run the followinf commands
+
+$ sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
+$ sudo yum install -y dnf-utils http://rpms.remirepo.net/enterprise/remi-release-8.rpm
+
+$ sudo yum install wget vim python3 telnet htop git mysql net-tools chrony -y
+
+$ sudo systemctl start chronyd
+
+$ sudo systemctl enable chronyd
+
+$ sudo systemctl status chronyd
+
+# Configure Selinux policies
+
+$ sudo setsebool -P httpd_can_network_connect=1
+
+$ sudo setsebool -P httpd_can_network_connect_db=1
+
+$ sudo setsebool -P httpd_execmem=1
+
+$ sudo setsebool -P httpd_use_nfs 1
+
+![Snipe 57](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/1c1c2eb2-2e08-4d0e-84e3-dc8db83183f8)
+
+# Install amazon efs utils for mounting the target on the Elastic file system
+
+$ git clone https://github.com/aws/efs-utils
+
+$ cd efs-utils
+
+$ sudo yum install -y make
+
+$ sudo yum install -y rpm-build
+
+$ sudo make rpm
+
+$ sudo yum install -y  ./build/amazon-efs-utils*rpm
+
+![Snipe 58](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5a8c41ef-35b0-4738-af20-a4ddd268e712)
+
+Setting up self-signed certificate for the nginx instance. If a target group is configured with the HTTPS protocol or uses HTTPS health checks, the TLS connections to the targets use the security settings from the ELBSecurityPolicy-2016-08 policy. The load balancer establishes TLS connections with the targets using certificates that you install on the targets. The load balancer does not validate these certificates. Therefore, you can use self-signed certificates or certificates that have expired. Because the load balancer is in a virtual private cloud (VPC), traffic between the load balancer and the targets is authenticated at the packet level, so it is not at risk of man-in-the-middle attacks or spoofing even if the certificates on the targets are not valid.
+
+$ sudo mkdir /etc/ssl/private
+
+$ sudo chmod 700 /etc/ssl/private
+
+$ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/narbyd.key -out /etc/ssl/certs/mirahkeys.crt
+
+$ sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+
+![Snipe 59](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f0e158c5-07e8-4d68-9995-73844bdd7b0e)
+
+To confirm my cert installation is successful and present in the server
+
+$ sudo ls -l /etc/ssl/certs/
+
+$ sudo ls -l /etc/ssl/private/
+
+Start and enable nginx
+
+# For Webserver
+
+Run the following commands to configure the webserver instance.
+
+$ sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
+$ sudo yum install -y dnf-utils http://rpms.remirepo.net/enterprise/remi-release-8.rpm
+
+$ sudo yum install wget vim python3 telnet htop git mysql net-tools chrony -y
+
+$ sudo systemctl start chronyd
+
+$ sudo systemctl enable chronyd
+
+$ sudo systemctl status chronyd
+
+Configure Selinux policies
+
+$ sudo setsebool -P httpd_can_network_connect=1
+
+$ sudo setsebool -P httpd_can_network_connect_db=1
+
+$ sudo setsebool -P httpd_execmem=1
+
+$ sudo setsebool -P httpd_use_nfs 1
+
+Install amazon efs utils for mounting the target on the Elastic file system
+
+$ git clone https://github.com/aws/efs-utils
+
+$ cd efs-utils
+
+$ sudo yum install -y make
+
+$ sudo yum install -y rpm-build
+
+$ sudo make rpm
+
+$ sudo yum install -y  ./build/amazon-efs-utils*rpm
+
+setting up self-signed certificate for the apache webserver instance
+
+$ sudo yum install -y mod_ssl
+
+$ sudo openssl req -newkey rsa:2048 -nodes -keyout /etc/pki/tls/private/narbyd.key -x509 -days 365 -out /etc/pki/tls/certs/mirahkeys.crt
+
+Using vi editor to edit the SSL certificate file path from localhost.crt and localhost.key to narbyd.crt and narbyd.key respectively
+
+$ sudo vi /etc/httpd/conf.d/ssl.conf
+
+![Snipe 60](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a632116e-20d4-41d3-b2a5-9ace5e7414a1)
+
+# Create AMIs from the instances
+
+![Snipe 61](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5e589155-e51a-4762-afd4-3961047d96e9)
+
+![Snipe 62](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/979fbffc-aa4b-43ca-b060-4a715fc1d655)
+
+![Snipe 63](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/b028ea38-2ee5-4632-8c53-72aad6f47707)
+
+# Create Launch Templates
+
+From the created custom AMIs, create Launch templates for each of the instances
+
+![Snipe 64](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/211af2ac-ff85-4402-a7de-78805d542b05)
+
+![Snipe 65](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/3226e21d-a59b-46ce-bf00-05f04c84ff4e)
+
+![Snipe 66](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/4d0d9595-c357-4261-bd14-0f92e9d3118d)
+
+![Snipe 67](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/b8300159-7ec6-41bd-8b39-34b4e530be3a)
+
+![Snipe 68](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/cacd13f3-84dd-42e6-a3c1-4883f5febf9b)
+
+![Snipe 69](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5129cb46-2f13-477b-aece-705c967899b2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

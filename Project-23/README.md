@@ -497,6 +497,9 @@ For Nginx
 
 Open the browser incognito using "CTRL + SHIFT + n" and paste the domain name i.e tooling.mirahkeys.xyz
 
+![Snipe 80](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/78eba947-9577-4270-b6d4-44ad62013c88)
+
+![Snipe 81](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/da338d06-602e-43aa-9594-1f03c9b9183b)
 
 
 

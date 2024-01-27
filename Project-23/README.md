@@ -87,6 +87,140 @@ NOTE : As you proceed with configuration, ensure that all resources are appropri
     ![Snipe 11](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0f720e4e-29f4-4020-b1b5-6272e20c7908)
 
 
+# TLS Certificates From Amazon Certificate Manager (ACM)
+
+You will need TLS certificates to handle secured connectivity to your Application Load Balancers (ALB).
+
+- Navigate to AWS ACM
+
+- Request a public wildcard certificate for the domain name you registered.
+
+![Snipe 13](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/610e3f71-0888-45db-bfaa-c70dc107b922)
+
+![Snipe 12](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/48915dbc-ccf7-4846-aa00-c5d922526385)
+
+![Snipe 14](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7aa8c287-e8cb-4ebf-b141-7a0f7fc63c7f)
+
+![Snipe 15](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/fe7eb70c-6fb9-42bc-9754-3e13eb9c614c)
+
+![Snipe 16](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/08c638a3-4e8d-43bb-b12a-975de9a3d278)
+
+![Acm](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/31d0dacb-f196-46b7-9099-d1e668b394d5)
+
+# Configure EFS
+
+- Create a new EFS File system. Create an EFS mount target per AZ in the VPC, associate it with both subnets dedicated for data layer. Associate the Security groups created earlier for data layer.
+
+![Snipe 17](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/1f51f281-c021-4957-aa4b-0c2d99600517)
+
+![Snipe 18](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5e6aeac0-6aee-4bea-912e-a8206a99f6ed)
+
+![Snipe 19](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f11256a9-1855-4ea5-8098-3e53b4be4f36)
+
+![Snipe 20](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/73118697-2734-4cf3-8c40-c65af6b27a38)
+
+![Snipe 21](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/b1f43a8a-00e7-45eb-915f-0a5ccc9aa6e0)
+
+- Create 2 access points - ! for each of the website (wordpress and tooling) so that the files do not overwrite each other when we mount.
+
+  ![Snipe 22](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/741eead1-e039-4d18-915e-4a0489c7a7fb)
+
+  ![Snipe 23](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/83712bb6-3ea0-42b9-b3cd-d87e75a7cf92)
+
+  ![Snipe 24](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/1e449109-8bbe-40f9-baed-da81bff02001)
+
+  ![Snipe 25](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/93441a82-a2b5-4e14-8b3f-c4502dc91c15)
+
+   ![Snipe 26](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a3c041b5-4821-442f-8b85-b9582d0a47ed)
+
+  ![Snipe 27](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/53dd6cb1-171a-4543-9e5f-43e399e2b4d1)
+
+  ![Snipe 28](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0adab37e-c818-43dc-84ff-287559d8d5f6)
+
+  ![Snipe 29](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/e2aaf969-281c-4f46-afaf-e6ea0163a163)
+
+  # Configure RDS
+
+  # Pre-requisite:
+
+  - Create a KMS Key
+
+   ![Snipe 30](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7a2c2d24-0f53-4ec8-898a-bb7d03561081)
+
+   ![Snipe 31](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/79c5a339-4e45-49ba-b729-dd7a74a57480)
+
+    ![Snipe 32](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c22c1176-29a8-4ac7-bf34-b18aece63df9)
+
+   ![Snipe 33](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/e1fa8d98-8c72-4414-b09c-3e76020f17e6)
+
+    ![Snipe 34](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/d32d3f64-3b49-4a7b-b6f2-ec4c53cd8ee8)
+
+    ![Snipe 35](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/956fb71b-55e8-44d7-9b65-64578edc2bf0)
+
+To ensure that your databases are highly available and also have failover support in case one availability zone fails, we will configure a multi-AZ set up of RDS MySQL database instance. In our case, since we are only using 2 AZs, we can only failover to one, but the same concept applies to 3 Availability Zones.
+
+To configure RDS, follow steps below:
+
+1. Create a subnet group and add 2 private subnets (data Layer)
+
+![Snipe 36](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ab09f704-7bb2-4935-985f-9ab9270b319b)
+
+![Snipe 37](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f4afbd62-67b4-403b-91e5-e3a44ca04bed)
+
+![Snipe 38](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/920c0da2-4ac8-4f4d-9330-c5cd4b1db7d2)
+
+2. Create the DB
+
+![Snipe 39](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/57eb9ed8-dad2-4fb6-b2f6-7941061076ac)
+
+![Snipe 40](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/02a5942c-3650-462c-9da2-f6585e0f85f3)
+
+![Snipe 41](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/075347c0-999d-4713-81b5-4c8e6b763a79)
+
+![Snipe 42](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ff58bd8b-5200-4d84-afc4-9d95b7ce51d8)
+
+![Snipe 43](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/b442bc6a-fc7a-4bdb-b615-6d96fb5a7668)
+
+# Configure Loadbalancers and Target Groups
+
+1. Create Target group for NGINX, tooling amd wordpress targets
+
+![Snipe 44](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/1ad0a094-71e7-4f30-95db-8fbc9dba68ae)
+
+![Snipe 45](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/b5c4d270-c970-4d6d-9726-d3ac595297f7)
+
+![Snipe 46](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/43ec98f5-2ef2-4b21-922c-71355cadb506)
+
+![Snipe 47](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/8440c920-7ece-40af-b415-ccfeb2bc9140)
+
+2. Create public-facing and internal loadbalancers
+
+ ![Snipe 48](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c0ec5811-dc7b-4e3a-8b6f-d405381a02d2)
+  
+![Snipe 49](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ebba69e2-df31-4bea-a91b-7ca5be296ff3)
+
+![Snipe 50](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/e0f8545f-e3d2-4264-87d1-901f8aa00aa7)
+
+![Snipe 51](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5d9d2465-a3ab-4225-a4e3-3f7780b78489)
+
+![Snipe 52](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/8e622c1a-7992-4971-86aa-b4679986e46c)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
 
 
 

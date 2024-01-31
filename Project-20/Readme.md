@@ -257,7 +257,33 @@ a845868b3a404f39b48b1b05137b4888
              - leave eveything at default and hit save
              - you will immediately see the scanning of the repository for branches and the jenkinsfile
 
-           # Lets Talk About The Jenkinsfile
+     # Blockers
+
+   ![Block1](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ca79a4ea-f849-4ad2-bf88-bc14b9e2afcc)
+
+   ![Block2](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/25d00a65-8ce6-4168-9bcf-58be89b64a2d)
+
+   # Solution
+
+   The error message "Scripts not permitted to use method org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper getRawBuild" typically indicates that you are trying to access a method or property in your Jenkins pipeline script that is not allowed due to script security restrictions. Jenkins has built-in security mechanisms to prevent certain operations that could be potentially unsafe.
+
+To resolve this issue, you have a few options:
+
+Approved Methods: If the method you are trying to use is considered safe, you can approve it in the Jenkins script security settings. Navigate to "Manage Jenkins" > "In-process Script Approval" and look for the method that is being blocked. You can approve it from there.
+
+Script Security Configuration: If you have administrative access to Jenkins, you can configure Script Security to allow specific methods. Go to "Manage Jenkins" > "Configure Global Security" > "Script Security" and add the necessary method signatures to the "Method Permissions" section.
+
+Here's an example of how you might approve a method using the Script Security interface:
+
+Go to "Manage Jenkins" > "In-process Script Approval." Look for the method that is being blocked (in this case, org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper getRawBuild). Approve the method by clicking on "Approve" next to it. Keep in mind that approving methods should be done with caution, and you should only approve methods that you trust.
+
+![Block3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/2d88529f-b960-41ef-bdbf-043fab66ddef)
+
+![Block4](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/6c518d25-f703-4e4d-8aa6-b21067296780)
+
+![Block5](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/74253816-4f52-4ae5-8272-8f3be9f181cf)
+ 
+   # Lets Talk About The Jenkinsfile
 
          # Pipeline 
 

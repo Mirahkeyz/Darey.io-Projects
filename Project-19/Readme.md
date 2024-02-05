@@ -158,15 +158,150 @@ To use our new setup, we uncomment the backend configurations and run
 
 $ terraform init
 
-This configures terraform to use the backend.
+# WHEN TO USE WORKSPACES OR DIRECTORY?
 
-N/B:
+To separate environments with significant configuration differences, use a directory structure. Use workspaces for environments that do not greatly deviate from each other, to avoid duplication of your configurations. Try both methods in the sections below to help you understand which will serve your infrastructure best.
 
-To upload the terraform.tfstate and the lock file to the S3 bucket and dynomoDB table, we run terraform init after provisioning the other resources.
-Our application wont work because in our shell script that was passed to launch, some endpoints like the RDS and EFS access points are needed and they have not been created yet. We will employ the use of Ansible and Packer to fix this in Project-20.
-We have successfully refactored the code to use modules, configured the S3 bucket and the DynamoDB to hold the terraform.tfstate file and lock files respectively.
+For now, you can read more about both alternatives here and try both methods yourself, but we will explore them better in next projects.
 
-This project continues in project 2o
+Security Groups refactoring with dynamic block For repetitive blocks of code you can use dynamic blocks in Terraform.
+
+# Refactor Security Groups creation with dynamic blocks.
+
+EC2 refactoring with Map and Lookup Remember, every piece of work you do, always try to make it dynamic to accommodate future changes. Amazon Machine Image (AMI) is a regional service which means it is only available in the region it was created. But what if we change the region later, and want to dynamically pick up AMI IDs based on the available AMIs in that region? This is where we will introduce Map and Lookup functions.
+
+Map uses a key and value pairs as a data structure that can be set as a default type for variables.
+
+To select an appropriate AMI per region, we will use a lookup function which has following syntax: lookup(map, key, [default]).
+
+Note: A default value is better to be used to avoid failure whenever the map data has no key.
+
+resource "aws_instace" "web" {
+    ami  = "${lookup(var.images, var.region), "ami-12323"}
+}
+
+Now, the lookup function will load the variable images using the first parameter. But it also needs to know which of the key-value pairs to use. That is where the second parameter comes in. The key us-east-1 could be specified, but then we will not be doing anything dynamic there, but if we specify the variable for region, it simply resolves to one of the keys. That is why we have used var.region in the second parameter.
+
+Conditional Expressions If you want to make some decision and choose some resource based on a condition – you shall use Terraform Conditional Expressions.
+
+In general, the syntax is as following: condition ? true_val : false_val
+
+Read following snippet of code and try to understand what it means:
+
+resource "aws_db_instance" "read_replica" {
+  count               = var.create_read_replica == true ? 1 : 0
+  replicate_source_db = aws_db_instance.this.id
+}
+
+
+resource "aws_db_instance" "read_replica" {
+  count               = var.create_read_replica == true ? 1 : 0
+  replicate_source_db = aws_db_instance.this.id
+}
+
+- true #condition equals to ‘if true’
+- ? #means, set to ‘1`
+- : #means, otherwise, set to ‘0’
+
+# Terraform Modules and best practices to structure your .tf codes
+
+By this time, you might have realized how difficult is to navigate through all the Terraform blocks if they are all written in a single long .tf file. As a DevOps engineer, you must produce reusable and comprehensive IaC code structure, and one of the tool that Terraform provides out of the box is Modules.
+
+Modules serve as containers that allow to logically group Terraform codes for similar resources in the same domain (e.g., Compute, Networking, AMI, etc.). One root module can call other child modules and insert their configurations when applying Terraform config. This concept makes your code structure neater, and it allows different team members to work on different parts of configuration at the same time.
+
+You can also create and publish your modules to Terraform Registry for others to use and use someone’s modules in your projects.
+
+Module is just a collection of .tf and/or .tf.json files in a directory.
+
+This is include in my terraform github repository.
+
+![ACM1](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7e6a0dd2-042d-4a7c-b4d3-05b5c3fb5572)
+
+![ACM2](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/9aae4d3a-2fc1-4c51-9d81-f777718c6558)
+
+![ACM3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/88c9e35a-38d3-43c6-a151-4594c3214110)
+
+![ACM4](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/29a31bd4-fa51-4ee7-aa58-db0ee683d8f1)
+
+Final Terraform Plan
+
+![ACM5](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/8317eb90-9d02-484e-976b-32cadad6e599)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

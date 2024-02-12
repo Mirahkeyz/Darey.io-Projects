@@ -91,6 +91,128 @@ To configure the AWS CLI run:
 
 $ aws configure and follow the prompt.
 
+![Snipe 1](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a6829348-afb1-447c-8272-0fc717019750)
+
+![Snipe 2](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/19378ce2-b9b6-48cc-a210-5a42c56387f7)
+
+![Snipe 3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/342dfae0-2a9d-4ff5-bca7-472928bd2710)
+
+To verify run aws cli commands.
+
+$ aws ec2 describe-vpcs
+
+![Snipe 4](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/cde8db4e-48b2-4984-acd9-ef6094e34af4)
+
+# Install kubectl
+
+A Kubernetes cluster features a Web API capable of handling HTTP/HTTPS requests. However, continually using curl to send commands can be cumbersome. To streamline the tasks of a Kubernetes administrator, the kubectl command tool was created.
+
+This versatile tool simplifies interactions with Kubernetes, enabling administrators to effortlessly deploy applications, inspect and manage cluster resources, access logs and execute various administrative tasks.
+
+Download the binary
+
+$ wget https://storage.googleapis.com/kubernetes-release/release/v1.21.0/bin/linux/amd64/kubectl
+
+Make it executable
+
+$ chmod +x kubectl
+
+Move to the Bin directory
+
+$ sudo mv kubectl /usr/local/bin/
+
+Verify that kubectl version 1.21.0 or higher is installed:
+
+$ kubectl version --client
+
+![Snipe 5](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/e1e60314-e4a9-41e9-8a18-22da0296202f)
+
+# Install CFSSL and CFSSLJSON
+
+cfssl is an open source tool by Cloudflare used to setup a Public Key Infrastructure. for generating, signing and bundling TLS certificates. In previous projects you have experienced the use of Letsencrypt for the similar use case. Here, cfssl will be configured as a Certificate Authority which will issue the certificates required to spin up a Kubernetes cluster.
+
+Download, install and verify successful installation of cfssl and cfssljson:
+
+$ wget -q --show-progress --https-only --timestamping https://github.com/cloudflare/cfssl/releases/download/v1.6.3/cfssl_1.6.3_linux_amd64 
+
+https://github.com/cloudflare/cfssl/releases/download/v1.6.3/cfssljson_1.6.3_linux_amd64
+
+$ chmod +x cfssl_1.6.3_linux_amd64 cfssljson_1.6.3_linux_amd64
+
+$ sudo mv cfssl_1.6.3_linux_amd64 /usr/local/bin/cfssl
+
+$ sudo mv cfssljson_1.6.3_linux_amd64 /usr/local/bin/cfssljson
+
+![Snipe 7](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0dd08ea9-a797-4282-8370-00b387ab98c7)
+
+![Snipe 6](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/1f1e6acf-2400-4cd2-a5f5-1a324a9d227e)
+
+# AWS CLOUD RESOURCES FOR KUBERNETES CLUSTER
+
+Configure Network Infrastructure - Virtual Private Cloud (VPC)
+
+Create a directory named manual-k8s-cluster
+
+Create a VPC and store the ID as a variable:
+
+$ VPC_ID=$(aws ec2 create-vpc --cidr-block 172.31.0.0/16 --output text --query 'Vpc.VpcId')
+
+Tag the VPC so that it is named
+
+$ aws ec2 create-tags --resources ${VPC_ID} --tags Key=Name,Value=manual-k8s-cluster
+
+![Snipe 8](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7c9dfd44-f219-4226-914c-bdc21539c3a9)
+
+![Snipe 9](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/8c2ee1b8-9d66-474e-92d6-95e8e714f58b)
+
+Domain Name System – DNS
+
+Enable DNS support for your VPC
+
+$ aws ec2 modify-vpc-attribute --vpc-id ${VPC_ID} --enable-dns-support '{"Value": true}'
+
+Enable DNS support for hostnames
+
+$ aws ec2 modify-vpc-attribute --vpc-id ${VPC_ID} --enable-dns-hostnames '{"Value": true}'
+
+AWS Region
+
+Set the required region
+
+$ AWS_REGION=us-east-1
+
+![Snipe 10](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/e1615b40-4aff-405e-a6a7-dc578f354c50)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

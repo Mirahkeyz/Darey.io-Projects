@@ -335,25 +335,57 @@ AMI
 
 Get an image to create EC2 instances
 
+$ IMAGE_ID=$(aws ec2 describe-images --owners 099720109477 --filters 'Name=root-device-type,Values=ebs' 'Name=architecture,Values=x86_64' 'Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*' | jq -r '.Images|sort_by(.Name)[-1]|.ImageId')
 
+![Snipe 25](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a6f34de7-9e2c-4180-80f7-bb2d083d63d9)
 
+SSH key-pair
 
+Create SSH Key-Pair
 
+$ mkdir -p ssh
 
+$ aws ec2 create-key-pair --key-name manual-k8s-cluster --output text --query 'KeyMaterial' > ssh/manual-k8s-cluster.id_rsa
 
+$ chmod 600 ssh/manual-k8s-cluster.id_rsa
 
+![Snipe 26](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/bf6addaa-0345-43b7-8d8a-7049d40e79bc)
 
+EC2 Instances for Controle Plane (Master Nodes)
 
+Create 3 Master nodes
 
+```
+for i in 0 1 2; do
+  instance_id=$(aws ec2 run-instances \
+    --associate-public-ip-address \
+    --image-id ${IMAGE_ID} \
+    --count 1 \
+    --key-name manual-k8s-cluster \
+    --security-group-ids ${SECURITY_GROUP_ID} \
+    --instance-type t2.micro \
+    --private-ip-address 172.31.0.1${i} \
+    --user-data "name=master-${i}" \
+    --subnet-id ${SUBNET_ID} \
+    --output text --query 'Instances[].InstanceId')
+  aws ec2 modify-instance-attribute \
+    --instance-id ${instance_id} \
+    --no-source-dest-check
+  aws ec2 create-tags \
+    --resources ${instance_id} \
+    --tags "Key=Name,Value=manual-k8s-cluster-master-${i}"
+done
+```
 
+![Snipe 27](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7c064822-0d60-4c0e-8fe0-e7819bfc40c1)
 
+![Snipe 28](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/d326d3ac-3a16-489a-9122-a1466e95b911)
 
+![Snipe 29](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5bd39e54-64bc-4b61-9b45-34558fda4d01)
 
+EC2 Instances for Worker Nodes
 
-
-
-
-
+Create 3 worker nodes
 
 ```
 for i in 0 1 2; do
@@ -376,6 +408,686 @@ for i in 0 1 2; do
     --tags "Key=Name,Value=manual-k8s-cluster-worker-${i}"
 done
 ```
+
+# PREPARE THE SELF-SIGNED CERTIFICATE AUTHORITY AND GENERATE TLS CERTIFICATES
+
+The following components running on the Master node will require TLS certificates.
+
+kube-controller-manager
+kube-scheduler
+etcd
+kube-apiserver
+The following components running on the Worker nodes will require TLS certificates.
+
+kubelet
+kube-proxy
+Therefore, you will provision a PKI Infrastructure using cfssl which will have a Certificate Authority. The CA will then generate certificates for all the individual component
+
+Self-Signed Root Certificate Authority (CA)
+
+Here, We will provision a CA that will be used to sign additional TLS certificates.
+
+Create a directory and cd into it
+
+$ mkdir ca-authority && cd ca-authority
+
+```
+{
+
+cat > ca-config.json <<EOF
+{
+  "signing": {
+    "default": {
+      "expiry": "8760h"
+    },
+    "profiles": {
+      "kubernetes": {
+        "usages": ["signing", "key encipherment", "server auth", "client auth"],
+        "expiry": "8760h"
+      }
+    }
+  }
+}
+EOF
+
+cat > ca-csr.json <<EOF
+{
+  "CN": "Kubernetes",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "UK",
+      "L": "England",
+      "O": "Kubernetes",
+      "OU": "Dybran-projects",
+      "ST": "London"
+    }
+  ]
+}
+EOF
+
+cfssl gencert -initca ca-csr.json | cfssljson -bare ca
+
+}
+```
+
+![Snipe 31](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/682153c7-cc74-4f5f-85ff-c6285beebb90)
+
+![Snipe 32](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/74c60e68-8f74-4f1e-95c5-02e42af8ab37)
+
+The 3 important files here are:
+
+- ca.pem – The Root Certificate
+- ca-key.pem – The Private Key
+- ca.csr – The Certificate Signing Request
+  
+Generating TLS Certificates For Client and Server
+
+We will need to provision Client/Server certificates for all the components. We must have encrypted communication within the cluster. Therefore, the server here are the master nodes running the api-server component. While the client is every other component that needs to communicate with the api-server.
+
+Now we have a certificate for the Root CA, we can then begin to request more certificates which the different Kubernetes components, i.e. clients and server, will use to have encrypted communication.
+
+Remember, the clients here refer to every other component that will communicate with the api-server. These are:
+
+- kube-controller-manager
+- kube-scheduler
+- etcd
+- kubelet
+- kube-proxy
+- Kubernetes Admin User
+
+Let us begin with the Kubernetes API-Server Certificate and Private Key
+
+The certificate for the Api-server must have IP addresses, DNS names, and a Load Balancer address included. Otherwise, we will have a lot of difficulties connecting to the api-server.
+
+Generate the Certificate Signing Request (CSR), Private Key and the Certificate for the Kubernetes Master Nodes.
+
+```
+{
+cat > master-kubernetes-csr.json <<EOF
+{
+  "CN": "kubernetes",
+   "hosts": [
+   "127.0.0.1",
+   "172.31.0.10",
+   "172.31.0.11",
+   "172.31.0.12",
+   "ip-172-31-0-10",
+   "ip-172-31-0-11",
+   "ip-172-31-0-12",
+   "ip-172-31-0-10.${AWS_REGION}.compute.internal",
+   "ip-172-31-0-11.${AWS_REGION}.compute.internal",
+   "ip-172-31-0-12.${AWS_REGION}.compute.internal",
+   "${KUBERNETES_PUBLIC_ADDRESS}",
+   "kubernetes",
+   "kubernetes.default",
+   "kubernetes.default.svc",
+   "kubernetes.default.svc.cluster",
+   "kubernetes.default.svc.cluster.local"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "UK",
+      "L": "England",
+      "O": "Kubernetes",
+      "OU": "Dybran-projects",
+      "ST": "London"
+    }
+  ]
+}
+EOF
+
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -profile=kubernetes \
+  master-kubernetes-csr.json | cfssljson -bare master-kubernetes
+}
+```
+
+![Snipe 33](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/1b06f11d-daea-419f-b346-7bc3e487465d)
+
+Creating the other certificates: for the following Kubernetes components:
+
+- Scheduler Client Certificate
+- Kube Proxy Client Certificate
+- Controller Manager Client Certificate
+- Kubelet Client Certificates
+- K8s admin user Client Certificate
+
+kube-scheduler Client - Certificate and Private Key
+```
+{
+
+cat > kube-scheduler-csr.json <<EOF
+{
+  "CN": "system:kube-scheduler",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "UK",
+      "L": "England",
+      "O": "system:kube-scheduler",
+      "OU": "Dybran-projects",
+      "ST": "London"
+    }
+  ]
+}
+EOF
+
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -profile=kubernetes \
+  kube-scheduler-csr.json | cfssljson -bare kube-scheduler
+
+}
+```
+
+kube-proxy Client - Certificate and Private Key
+
+```
+{
+
+cat > kube-proxy-csr.json <<EOF
+{
+  "CN": "system:kube-proxy",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "UK",
+      "L": "England",
+      "O": "system:node-proxier",
+      "OU": "Dybran-projects",
+      "ST": "London"
+    }
+  ]
+}
+EOF
+
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -profile=kubernetes \
+  kube-proxy-csr.json | cfssljson -bare kube-proxy
+
+}
+```
+
+kube-controller-manager - Client Certificate and Private Key
+
+```
+{
+cat > kube-controller-manager-csr.json <<EOF
+{
+  "CN": "system:kube-controller-manager",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "UK",
+      "L": "England",
+      "O": "system:kube-controller-manager",
+      "OU": "Dybran-projects",
+      "ST": "London"
+    }
+  ]
+}
+EOF
+
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -profile=kubernetes \
+  kube-controller-manager-csr.json | cfssljson -bare kube-controller-manager
+
+}
+```
+
+kubelet Client - Certificate and Private Key
+
+Similar to how we configured the api-server's certificate, Kubernetes requires that the hostname of each worker node is included in the client certificate.
+
+Also, Kubernetes uses a special-purpose authorization mode called Node Authorizer, that specifically authorizes API requests made by kubelet services. In order to be authorized by the Node Authorizer, kubelets must use a credential that identifies them as being in the system:nodes group, with a username of system:node:. Notice the "CN": "system:node:${instance_hostname}", in the below code.
+
+Therefore, the certificate to be created must comply to these requirements. In the below example, there are 3 worker nodes, hence we will use bash to loop through a list of the worker nodes’ hostnames, and based on each index, the respective Certificate Signing Request (CSR), private key and client certificates will be generated.
+
+```
+for i in 0 1 2; do
+  instance="manual-k8s-cluster-worker-${i}"
+  instance_hostname="ip-172-31-0-2${i}"
+  cat > ${instance}-csr.json <<EOF
+{
+  "CN": "system:node:${instance_hostname}",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "UK",
+      "L": "England",
+      "O": "system:nodes",
+      "OU": "Dybran-projects",
+      "ST": "London"
+    }
+  ]
+}
+EOF
+
+  external_ip=$(aws ec2 describe-instances \
+    --filters "Name=tag:Name,Values=${instance}" \
+    --output text --query 'Reservations[].Instances[].PublicIpAddress')
+
+  internal_ip=$(aws ec2 describe-instances \
+    --filters "Name=tag:Name,Values=${instance}" \
+    --output text --query 'Reservations[].Instances[].PrivateIpAddress')
+
+  cfssl gencert \
+    -ca=ca.pem \
+    -ca-key=ca-key.pem \
+    -config=ca-config.json \
+    -hostname=${instance_hostname},${external_ip},${internal_ip} \
+    -profile=kubernetes \
+    manual-k8s-cluster-worker-${i}-csr.json | cfssljson -bare manual-k8s-cluster-worker-${i}
+done
+```
+
+kubernetes admin user - Client Certificate and Private Key
+
+```
+{
+cat > admin-csr.json <<EOF
+{
+  "CN": "admin",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "UK",
+      "L": "England",
+      "O": "system:masters",
+      "OU": "Dybran-projects",
+      "ST": "London"
+    }
+  ]
+}
+EOF
+
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -profile=kubernetes \
+  admin-csr.json | cfssljson -bare admin
+}
+```
+
+Token Controller - certificate and private key
+
+We need to generate certificate and private key for the Token Controller - a part of the Kubernetes Controller Manager.
+
+kube-controller-manager responsible for generating and signing service account tokens which are used by pods or other resources to establish connectivity to the api-server.
+
+```
+{
+
+cat > service-account-csr.json <<EOF
+{
+  "CN": "service-accounts",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "UK",
+      "L": "England",
+      "O": "Kubernetes",
+      "OU": "Dybran-projects",
+      "ST": "London"
+    }
+  ]
+}
+EOF
+
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -profile=kubernetes \
+  service-account-csr.json | cfssljson -bare service-account
+}
+```
+
+![Snipe 34](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/750626f4-5df3-4619-b19d-72e2389042e8)
+
+DISTRIBUTING THE CLIENT AND SERVER CERTIFICATES
+
+Now it is time to start sending all the client and server certificates to their respective instances.
+
+Let us begin with the worker nodes:
+
+Copy these files securely to the worker nodes using scp utility
+
+- Root CA certificate – ca.pem
+- X509 Certificate for each worker node
+- Private Key of the certificate for each worker node
+
+```
+for i in 0 1 2; do
+  instance="manual-k8s-cluster-worker-${i}"
+  external_ip=$(aws ec2 describe-instances \
+    --filters "Name=tag:Name,Values=${instance}" \
+    --output text --query 'Reservations[].Instances[].PublicIpAddress')
+  scp -i ../ssh/manual-k8s-cluster.id_rsa \
+    ca.pem ${instance}-key.pem ${instance}.pem ubuntu@${external_ip}:~/; \
+done
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -205,6 +205,165 @@ $ aws ec2 associate-dhcp-options --dhcp-options-id ${DHCP_OPTION_SET_ID} --vpc-i
 
 ![Snipe 11](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/2c0058d0-da09-495a-a545-ad9e55c96327)
 
+Subnet
+
+Create and tag the Subnet
+
+$ SUBNET_ID=$(aws ec2 create-subnet --vpc-id ${VPC_ID} --cidr-block 172.31.0.0/24 --output text --query 'Subnet.SubnetId')
+
+$ aws ec2 create-tags --resources ${SUBNET_ID} --tags Key=Name,Value=manual-k8s-cluster
+
+Internet Gateway – IGW
+
+Create the Internet Gateway and attach it to the VPC
+
+$ INTERNET_GATEWAY_ID=$(aws ec2 create-internet-gateway --output text --query 'InternetGateway.InternetGatewayId')
+
+$ aws ec2 create-tags --resources ${INTERNET_GATEWAY_ID} --tags Key=Name,Value=manual-k8s-cluster
+
+Attah to VPC
+
+$ aws ec2 attach-internet-gateway --internet-gateway-id ${INTERNET_GATEWAY_ID} --vpc-id ${VPC_ID}
+
+![Snipe 12](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/4f1f2fab-abfb-4513-a096-25a57a66a83c)
+
+Route tables
+
+Create route tables, associate the route table to subnet, and create a route to allow external traffic to the Internet through the Internet Gateway
+
+$ ROUTE_TABLE_ID=$(aws ec2 create-route-table --vpc-id ${VPC_ID} --output text --query 'RouteTable.RouteTableId')
+
+$ aws ec2 create-tags --resources ${ROUTE_TABLE_ID} --tags Key=Name,Value=manual-k8s-cluster
+
+$ aws ec2 associate-route-table --route-table-id ${ROUTE_TABLE_ID} --subnet-id ${SUBNET_ID}
+
+![Snipe 13](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ae449e10-1eda-4801-9f04-62f33894e40e)
+
+Create a route to allow external traffic to the Internet through the Internet Gateway
+
+$ aws ec2 create-route --route-table-id ${ROUTE_TABLE_ID} --destination-cidr-block 0.0.0.0/0 --gateway-id ${INTERNET_GATEWAY_ID}
+
+![Snipe 14](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c2ad7030-5e7f-4772-9dc0-4ce35fc66e24)
+
+Security Groups
+
+Configure security groups
+
+Create the security group and store its ID in a variable
+
+$ SECURITY_GROUP_ID=$(aws ec2 create-security-group --group-name manual-k8s-cluster --description "Kubernetes cluster security group" --vpc-id ${VPC_ID} --output text --query 'GroupId')
+
+Create the NAME tag for the security group
+
+$ aws ec2 create-tags --resources ${SECURITY_GROUP_ID} --tags Key=Name,Value=manual-k8s-cluster
+
+Create Inbound traffic for all communication within the subnet to connect on ports used by the master node(s)
+
+$ aws ec2 authorize-security-group-ingress --group-id ${SECURITY_GROUP_ID} --ip-permissions IpProtocol=tcp,FromPort=2379,ToPort=2380,IpRanges='[{CidrIp=172.31.0.0/24}]'
+
+Create Inbound traffic for all communication within the subnet to connect on ports used by the worker nodes
+
+$ aws ec2 authorize-security-group-ingress --group-id ${SECURITY_GROUP_ID} --ip-permissions IpProtocol=tcp,FromPort=30000,ToPort=32767,IpRanges='[{CidrIp=172.31.0.0/24}]'
+
+Create inbound traffic to allow connections to the Kubernetes API Server (port 6443) listening on port 6443
+
+$ aws ec2 authorize-security-group-ingress --group-id ${SECURITY_GROUP_ID} --protocol tcp --port 6443 --cidr 0.0.0.0/0
+
+Create inbound SSH traffic from any source. In a production environment, restrict access exclusively to desired IPs or CIDR ranges for connection.
+
+$ aws ec2 authorize-security-group-ingress --group-id ${SECURITY_GROUP_ID} --protocol tcp --port 22 --cidr 0.0.0.0/0
+
+Create ICMP ingress for all types
+
+$ aws ec2 authorize-security-group-ingress --group-id ${SECURITY_GROUP_ID} --protocol icmp --port -1 --cidr 0.0.0.0/0
+
+![Snipe 15](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7de5c245-7330-45be-92bb-1d63a8b5a63c)
+
+Network Load Balancer
+
+Create a network Load balancer
+
+$ LOAD_BALANCER_ARN=$(aws elbv2 create-load-balancer --name manual-k8s-cluster --subnets ${SUBNET_ID} --scheme internet-facing --type network --output text --query 'LoadBalancers[].LoadBalancerArn')
+
+![Snipe 16](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/50ed0397-7857-4b7d-8dba-86a4ef80b1bb)
+
+![Snipe 17](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a1c83e20-4580-4d2f-a3d9-cbba12206a84)
+
+Tagret Group
+
+Create a target group acknowledging its lack of defined criteria at this stage due to the absence of real targets. it will be "unhealthy".
+
+$ TARGET_GROUP_ARN=$(aws elbv2 create-target-group --name manual-k8s-cluster --protocol TCP --port 6443 --vpc-id ${VPC_ID} --target-type ip --output text --query 'TargetGroups[].TargetGroupArn')
+
+![Snipe 18](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f63897fc-6e41-449e-8610-7f64bbb5da72)
+
+![Snipe 19](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/dbde78c2-fff9-47c7-91b8-d353a0667be6)
+
+Register targets: Similar to above, you will provide the IP addresses for registration purposes. These IP addresses will serve as targets when the nodes become available.
+
+$ aws elbv2 register-targets --target-group-arn ${TARGET_GROUP_ARN} --targets Id=172.31.0.1{0,1,2}
+
+![Snipe 20](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/272ffde7-e3a1-49a1-9eca-0d76696b0ffb)
+
+Create a listener to listen for requests and forward to the target nodes on TCP port 6443
+
+$ aws elbv2 create-listener --load-balancer-arn ${LOAD_BALANCER_ARN} --protocol TCP --port 6443 --default-actions Type=forward,TargetGroupArn=${TARGET_GROUP_ARN} --output text --query 'Listeners[].ListenerArn'
+
+![Snipe 21](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/62cfe665-7bd4-492f-af30-7408374554a0)
+
+![Snipe 22](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/add004b6-55e2-43c5-8868-e622928516f1)
+
+K8s Public Address
+
+Get the Kubernetes Public address
+
+$ KUBERNETES_PUBLIC_ADDRESS=$(aws elbv2 describe-load-balancers --load-balancer-arns ${LOAD_BALANCER_ARN} --output text --query 'LoadBalancers[].DNSName')
+
+![Snipe 23](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5c3a1f36-5c78-45fc-ad67-6008c83a6def)
+
+CREATE COMPUTE RESOURCES
+
+Install jq tool
+
+jq is a lightweight and flexible command-line tool for processing and manipulating JSON data. It is commonly used in Unix-like operating systems to filter, transform, and format JSON data from various sources, including files, APIs, and other data streams. jq provides a wide range of features for querying and manipulating JSON, making it a powerful tool for tasks like parsing JSON, extracting specific data, and creating new JSON structures.
+
+$ sudo apt update && sudo apt install jq -y
+
+![Snipe 24](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/2353e5f1-1016-4e2c-a021-d9c5a3fe3141)
+
+AMI
+
+Get an image to create EC2 instances
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

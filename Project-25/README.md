@@ -805,6 +805,255 @@ for i in 0 1 2; do
     ca.pem ${instance}-key.pem ${instance}.pem ubuntu@${external_ip}:~/; \
 done
 ```
+![Snipe 35](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/864e85a1-f9ea-4a8f-9550-d12921721566)
+
+Master or Controller node: – Note that only the api-server related files will be sent over to the master nodes.
+
+```
+for i in 0 1 2; do
+instance="manual-k8s-cluster-master-${i}" \
+  external_ip=$(aws ec2 describe-instances \
+    --filters "Name=tag:Name,Values=${instance}" \
+    --output text --query 'Reservations[].Instances[].PublicIpAddress')
+  scp -i ../ssh/manual-k8s-cluster.id_rsa \
+    ca.pem ca-key.pem service-account-key.pem service-account.pem \
+    master-kubernetes.pem master-kubernetes-key.pem ubuntu@${external_ip}:~/;
+done
+```
+
+![Snipe 36](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/fd891972-019f-4487-93c4-32ab4deb6590)
+
+The kube-proxy, kube-controller-manager, kube-scheduler and kubelet client certificates will be used to generate client authentication configuration files later on.
+
+GENERATE KUBERNETES CONFIGURATION FILES FOR AUTHENTICATION USING 'KUBECTL'
+
+In this step, We will create some files known as kubeconfig, which enables Kubernetes clients to locate and authenticate to the Kubernetes API Servers.
+
+You will need a client tool called kubectl to do this. And, by the way, most of your time with Kubernetes will be spent using kubectl commands.
+
+Now it’s time to generate kubeconfig files for the kubelet, controller manager, kube-proxy, and scheduler clients and then the admin user.
+
+First, let us create a few environment variables for reuse by multiple commands.
+
+$ KUBERNETES_API_SERVER_ADDRESS=$(aws elbv2 describe-load-balancers --load-balancer-arns ${LOAD_BALANCER_ARN} --output text --query 'LoadBalancers[].DNSName')
+
+Generate the kubelet kubeconfig file
+
+For each of the nodes running the kubelet component, it is very important that the client certificate configured for that node is used to generate the kubeconfig. This is because each certificate has the node’s DNS name or IP Address configured at the time the certificate was generated. It will also ensure that the appropriate authorization is applied to that node through the Node Authorizer
+
+Run the code below in the directory where all the certificates were generated.
+
+```
+for i in 0 1 2; do
+
+instance="manual-k8s-cluster-worker-${i}"
+instance_hostname="ip-172-31-0-2${i}"
+
+ # Set the kubernetes cluster in the kubeconfig file
+  kubectl config set-cluster manual-k8s-cluster \
+    --certificate-authority=ca.pem \
+    --embed-certs=true \
+    --server=https://$KUBERNETES_API_SERVER_ADDRESS:6443 \
+    --kubeconfig=${instance}.kubeconfig
+
+# Set the cluster credentials in the kubeconfig file
+  kubectl config set-credentials system:node:${instance_hostname} \
+    --client-certificate=${instance}.pem \
+    --client-key=${instance}-key.pem \
+    --embed-certs=true \
+    --kubeconfig=${instance}.kubeconfig
+
+# Set the context in the kubeconfig file
+  kubectl config set-context default \
+    --cluster=manual-k8s-cluster \
+    --user=system:node:${instance_hostname} \
+    --kubeconfig=${instance}.kubeconfig
+
+  kubectl config use-context default --kubeconfig=${instance}.kubeconfig
+done
+```
+
+![Snipe 37](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/2489c402-0835-4336-b808-1ff0995d487c)
+
+List the output
+
+$ ls -ltr *.kubeconfig
+
+![Snipe 38](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7abc1cd9-4bad-40b8-b924-70275fad190c)
+
+Open up the kubeconfig files generated and review the 3 different sections that have been configured:
+
+- Cluster
+- Credentials
+- Kube Context
+
+Kubeconfig file is used to organize information about clusters, users, namespaces and authentication mechanisms. By default, kubectl looks for a file named config in the $HOME/.kube directory. You can specify other kubeconfig files by setting the KUBECONFIG environment variable or by setting the --kubeconfig flag.
+
+Context part of kubeconfig file defines three main parameters: cluster, namespace and user. You can save several different contexts with any convenient names and switch between them when needed.
+
+$  kubectl config use-context %context-name%
+
+Generate the kube-proxy kubeconfig
+
+```
+{
+  kubectl config set-cluster manual-k8s-cluster \
+    --certificate-authority=ca.pem \
+    --embed-certs=true \
+    --server=https://${KUBERNETES_API_SERVER_ADDRESS}:6443 \
+    --kubeconfig=kube-proxy.kubeconfig
+
+  kubectl config set-credentials system:kube-proxy \
+    --client-certificate=kube-proxy.pem \
+    --client-key=kube-proxy-key.pem \
+    --embed-certs=true \
+    --kubeconfig=kube-proxy.kubeconfig
+
+  kubectl config set-context default \
+    --cluster=manual-k8s-cluster \
+    --user=system:kube-proxy \
+    --kubeconfig=kube-proxy.kubeconfig
+
+  kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig
+}
+```
+
+![Snipe 39](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/3c6c2b9f-d7f2-40f3-9837-78221909c1b0)
+
+Generate the Kube-Controller-Manager kubeconfig
+
+Notice that the --server is set to use 127.0.0.1. This is because, this component runs on the API-Server so there is no point routing through the Load Balancer.
+
+```
+{
+  kubectl config set-cluster manual-k8s-cluster \
+    --certificate-authority=ca.pem \
+    --embed-certs=true \
+    --server=https://127.0.0.1:6443 \
+    --kubeconfig=kube-controller-manager.kubeconfig
+
+  kubectl config set-credentials system:kube-controller-manager \
+    --client-certificate=kube-controller-manager.pem \
+    --client-key=kube-controller-manager-key.pem \
+    --embed-certs=true \
+    --kubeconfig=kube-controller-manager.kubeconfig
+
+  kubectl config set-context default \
+    --cluster=manual-k8s-cluster \
+    --user=system:kube-controller-manager \
+    --kubeconfig=kube-controller-manager.kubeconfig
+
+  kubectl config use-context default --kubeconfig=kube-controller-manager.kubeconfig
+}
+```
+
+![Snipe 40](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/6fee1aa8-6f0e-43eb-b4cb-7c03d9bd46b8)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

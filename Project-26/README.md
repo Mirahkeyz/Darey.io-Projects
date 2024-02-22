@@ -316,6 +316,550 @@ spec:
 ![Snipe 18](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/dbf784ff-7b99-45c0-89f3-51380d6d2893)
 
 
+The manifest file of ReplicaSet consist of the following fields
+
+apiVersion: This field specifies the version of kubernetes Api to which the object belongs. ReplicaSet belongs to apps/v1 apiVersion.
+kind: This field specify the type of object for which the manifest belongs to. Here, it is ReplicaSet.
+metadata: This field includes the metadata for the object. It mainly includes two fields: name and labels of the ReplicaSet.
+spec: This field specifies the label selector to be used to select the Pods, number of replicas of the Pod to be run and the container or list of containers which the Pod will run. In the above example, we are running 3 replicas of nginx container.
+Create the nginx replicaset
+
+$ kubectl apply -f nginx-rs.yml
+
+We can access the pods using
+
+$ kubectl get pods
+
+To access the information about the pods
+
+$ kubectl describe pod <pod-id>
+
+OR
+
+$ kubectl get pod <pod-id> -o yaml
+
+Detailed information about the replicaset
+
+$ kubectl get rs nginx-rs -o yaml
+
+OR
+
+$ kubectl get rs nginx-rs -o json
+
+We can easily scale our ReplicaSet by specifying the desired number of replicas
+
+$ kubectl scale rs nginx-rs --replicas=<number-of-pods>
+
+![Snipe 20](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/dd8b7879-a4aa-41cc-8456-001bd5363791)
+
+# Advanced label matching
+
+As Kubernetes mature as a technology, so does its features and improvements to k8s objects. ReplicationControllers do not meet certain complex business requirements when it comes to using selectors. Imagine if you need to select Pods with multiple lables that represents things like
+
+- Application tier: such as Frontend, or Backend
+- Environment: such as Dev, SIT, QA, Preprod or Prod
+
+So far, we used a simple selector that just matches a key-value pair and check only equality
+
+```
+  selector:
+    app: nginx-pod
+```
+    
+But in some cases, we want ReplicaSet to manage our existing containers that match certain criteria, we can use the same simple label matching or we can use some more complex conditions, such as:
+
+- in
+- not in
+- not equal
+- etc... Let us create the rs.yml manifest file
+
+```
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata: 
+  name: nginx-rs
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      env: prod
+    matchExpressions:
+    - { key: tier, operator: In, values: [frontend] }
+  template:
+    metadata:
+      name: nginx
+      labels: 
+        env: prod
+        tier: frontend
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+          protocol: TCP
+```
+
+In the above spec file, under the selector, matchLabels and matchExpression are used to specify the key-value pair. The matchLabel works exactly the same way as the equality-based selector, and the matchExpression is used to specify the set based selectors. This feature is the main differentiator between ReplicaSet and previously mentioned obsolete ReplicationController.
+
+Create the replicaset
+
+$ kubectl apply -f rs.yml
+
+Get the replication set
+
+$ kubectl get rs nginx-rs -o wide
+
+![Snipe 21](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/917646c6-31a3-46c2-86a8-b4e7890007ac)
+
+![Snipe 22](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/38845fc3-dc6c-4948-b515-9eaab0526977)
+
+# USING AWS LOAD BALANCER TO ACCESS YOUR SERVICE IN KUBERNETES.
+
+We have previously interacted with the Nginx service using ClusterIP and NodeIP. However, there's yet another service type known as LoadBalancer. This particular service not only establishes a Service object within Kubernetes but also sets up an actual external Load Balancer, such as the Elastic Load Balancer (ELB) in AWS, if available.
+
+Create the service and ensure that the selector references the Pods in the replica set.
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  type: LoadBalancer
+  selector:
+    tier: frontend
+  ports:
+    - protocol: TCP
+      port: 80 # This is the port the Loadbalancer is listening at
+      targetPort: 80 # This is the port the container is listening at
+```
+
+Create the nginxlb-svc.yml
+
+$ kubectl apply -f nginxlb-svc.yml
+
+An ELB resource will be created in your AWS console
+
+![Snipe 23](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f487631a-8c80-4b65-aeab-7424dfb565a2)
+
+![Snipe 24](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0f69a1a6-ac81-4183-8d5b-0696ced0ba18)
+
+![Snipe 25](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/6f589eec-69c3-4e3e-b119-4f8db443d7eb)
+
+To get the endpoint for the load balancer
+
+$ kubectl get svc
+
+Access the nginx from the browser
+
+![Snipe 26](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/16bf866a-a0e7-406a-b804-d89a36884878)
+
+To get information about the nginx-service
+
+$ kubectl describe svc nginx-service
+
+OR
+
+$ kubectl get svc nginx-service -o yaml
+
+![Snipe 27](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a99ea737-87b9-481a-8eae-443f2f6c18e6)
+
+A clusterIP key is updated in the manifest and assigned an IP address. Even though you have specified a Loadbalancer service type, internally it still requires a clusterIP to route the external traffic through. In the ports section, nodePort is still used. This is because Kubernetes still needs to use a dedicated port on the worker node to route the traffic through. Ensure that port range 30000-32767 is opened in your inbound Security Group configuration.
+
+Delete the replicaset and the nginx service
+
+$ kubectl delete rs nginx-rs
+
+$ kubectl delete svc nginx-service
+
+USING DEPLOYMENT CONTROLLERS
+
+A Deployment is another layer above ReplicaSets and Pods, newer and more advanced level concept than ReplicaSets. It manages the deployment of ReplicaSets and allows for easy updating of a ReplicaSet as well as the ability to roll back to a previous version of deployment. It is declarative and can be used for rolling updates of micro-services, ensuring there is no downtime.
+
+Officially, it is highly recommended to use Deployments to manage replica sets rather than using replica sets directly.
+
+Create a deploy.yml manifest
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deploy
+  labels:
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+```
+![Snipe 28](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/fdc2d222-2077-4be7-b4d6-1c8311a087a9)
+
+Create the deployment
+
+$ kubectl apply -f deploy.yaml
+
+Get the deployment
+
+$ kubectl get deploy
+
+Get the replicaset
+
+$ kubectl get rs
+
+Get the pods
+
+$ kubectl get pods
+
+![Snipe 29](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ea3043a3-c342-4ec9-af85-50f747ec480c)
+
+From the above we will find that one f the pods is pending. To get information about the pod
+
+$ kubectl describe pod <pod-id>
+
+![Snipe 30](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7f19937d-beb3-415f-8a52-63c9dd874e5a)
+
+The Event will help us with the problem with the pod.
+
+The warning indicates that there are no available nodes to schedule your pod because all nodes are occupied because I used t2.micro to create the clsuter.
+
+Some of the ways to resolve this include:
+
+Add more nodes to your cluster.
+Adjust resource requests and limits.
+Prioritize pods.
+Use PodDisruptionBudgets.
+Scale down or remove unnecessary pods.
+I had to update the depoy.yml file to scale down the replicaset to 2.
+
+Connect into one of the Pods' container to run Linux commands
+
+$ kubectl exec -it nginx-deploy-7d476d754d-fcd55 /bin/bash
+
+List the files and folders in the Nginx directory
+
+# ls -latr /etc/nginx
+
+We can access the content of the default.conf
+
+# cat /etc/nginx/conf.d/default.conf
+
+![Snipe 31](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/72118115-021b-4d1c-82b5-78def8a7e2c2)
+
+Create the nginxlb-svc.yml service and access the nignx from the browser using the loadbalancer endpoint.
+
+![Snipe 32](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/8c59ad4e-24fc-4cf4-bc38-c38863482089)
+
+# PERSISTING DATA FOR PODS
+
+Deployments are stateless by design. Hence, any data stored inside the Pod’s container does not persist when the Pod dies.
+
+If you were to update the content of the index.html file inside the container, and the Pod dies, that content will not be lost since a new Pod will replace the dead one.
+
+To see this in action, scale down the pods from 2 to 1
+
+$ kubectl scale deployment nginx-deploy --replicas=1
+
+![Snipe 33](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/e07fd8b5-2301-44c7-97d6-414019675d01)
+
+Connect into the pod and install vim
+
+$ kubectl exec -itnginx-deploy-7d476d754d-fcd55 /bin/bash
+
+ apt update && apt install vim -y
+
+![Snipe 34](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/5bb8da20-1086-4110-9f3c-7586eb16db0f)
+
+Update the content of the file and add the code below /usr/share/nginx/html/index.html
+
+$ vim /usr/share/nginx/html/index.html
+
+```
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to Miracle's Page!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Welcome to Miracle's Page!</h1>
+<p>Learning by doing is so much fun</p>
+
+<p>Project Based learning at 
+<a href="https://darey.io/">www.darey.io</a>.<br/>
+Start your Learning today at
+<a href="https://darey.io/">www.darey.io</a>.</p>
+
+<p><em>Thanks</em></p>
+</body>
+</html>
+```
+
+Reload the browser to see the changes made
+
+Now, delete the only running Pod
+
+$ kubectl delete pod nginx-deploy-7d476d754d-fcd55
+
+We will see that the replicaset creates another pod with a different pod ID.
+
+
+
+Refresh the web page
+
+![Snipe 35](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/90a63783-75bd-4d0d-9333-39d45b5bdf6d)
+
+![Snipe 36](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/330580a8-a9b4-482a-8c07-d196cf8f3d30)
+
+You will see that the content that was saved in the container is no longer there. That is because Pods do not store data when they are being recreated – that is why they are called ephemeral or stateless.
+
+Storage is a critical part of running containers, and Kubernetes offers some powerful primitives for managing it. Dynamic volume provisioning, a feature unique to Kubernetes, which allows storage volumes to be created on-demand. Without dynamic provisioning, DevOps engineers must manually make calls to the cloud or storage provider to create new storage volumes, and then create PersistentVolume objects to represent them in Kubernetes. The dynamic provisioning feature eliminates the need for DevOps to pre-provision storage. Instead, it automatically provisions storage when it is requested by users.
+
+To make the data persist in case of a Pod’s failure, you will need to configure the Pod to use following objects:
+
+Persistent Volume or pv – is a piece of storage in the cluster that has been provisioned by an administrator or dynamically provisioned using Storage Classes.
+Persistent Volume Claim or pvc. Persistent Volume Claim is simply a request for storage, hence the "claim" in its name.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

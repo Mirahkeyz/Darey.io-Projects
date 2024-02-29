@@ -416,53 +416,7 @@ Now, it is time to configure the ingress so that we can route traffic to the Art
 Notice the section with the configuration that selects the ingress controller using the ingressClassName
 
 Create the artifactory-ingress.yaml manifest
-``
-cat <<EOF > artifactory-ingress.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: artifactory
-spec:
-  ingressClassName: nginx
-  rules:
-  - host: "tooling.artifactory.dybran.com"
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: artifactory-artifactory-nginx
-            port:
-              number: 80
-EOF
-```
 
-Create the ingress resource in the tools namespace
-
-$ kubectl apply -f artifactory-ingress.yaml -n tools
-
-Get the ingress resource
-
-$ kubectl get ingress -n tools
-
-Note:
-
-CLASS - The nginx controller class name nginx
-
-HOSTS - The hostname to be used in the browser tooling.artifactory.dybran.com
-
-ADDRESS - The loadbalancer address that was created by the ingress controller
-
-Configure DNS
-
-When accessing the tool, sharing the lengthy load balancer address poses significant inconvenience. The ideal solution involves creating a DNS record that's easily readable by humans and capable of directing requests to the balancer. This exact configuration is set within the ingress object as host: "tooling.artifactory.mirahkeys.xyz". However, without a corresponding DNS record, this host address cannot reach the load balancer.
-
-The "mirahkeys.xyz" portion of the domain represents the configured HOSTED ZONE in AWS. To enable this functionality, it's necessary to set up the Hosted Zone in the AWS console or include it as part of your infrastructure using tools like Terraform.
-
-Create hosted zone mirahkeys.xyz
-
-You must have purchased a domain name from a domain provider and configured the nameservers.
 
 
 

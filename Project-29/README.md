@@ -446,9 +446,27 @@ Get the ingress resource
 
 $ kubectl get ingress -n tools
 
+![Snipe 33](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0a7fec88-23c8-4558-a2e7-cd7cbc125d3d)
 
+Note:
 
+CLASS - The nginx controller class name nginx
 
+HOSTS - The hostname to be used in the browser tooling.artifactory.dybran.com
+
+ADDRESS - The loadbalancer address that was created by the ingress controller
+
+Configure DNS
+
+When accessing the tool, sharing the lengthy load balancer address poses significant inconvenience. The ideal solution involves creating a DNS record that's easily readable by humans and capable of directing requests to the balancer. This exact configuration is set within the ingress object as host: "tooling.artifactory.mirahkeys.xyz". However, without a corresponding DNS record, this host address cannot reach the load balancer.
+
+The "mirahkeys.xyz" portion of the domain represents the configured HOSTED ZONE in AWS. To enable this functionality, it's necessary to set up the Hosted Zone in the AWS console or include it as part of your infrastructure using tools like Terraform.
+
+Create hosted zone mirahkeys.xyz
+
+You must have purchased a domain name from a domain provider and configured the nameservers.
+
+![Snipe 34](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/be0c0223-512d-46e6-b373-9ce3e184ac04)
 
 
 

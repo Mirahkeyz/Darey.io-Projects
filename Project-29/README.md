@@ -416,7 +416,6 @@ Now, it is time to configure the ingress so that we can route traffic to the Art
 Notice the section with the configuration that selects the ingress controller using the ingressClassName
 
 Create the artifactory-ingress.yaml manifest
-
 ``
 cat <<EOF > artifactory-ingress.yaml
 apiVersion: networking.k8s.io/v1
@@ -438,6 +437,7 @@ spec:
               number: 80
 EOF
 ```
+
 Create the ingress resource in the tools namespace
 
 $ kubectl apply -f artifactory-ingress.yaml -n tools
@@ -445,8 +445,6 @@ $ kubectl apply -f artifactory-ingress.yaml -n tools
 Get the ingress resource
 
 $ kubectl get ingress -n tools
-
-![Snipe 33](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0a7fec88-23c8-4558-a2e7-cd7cbc125d3d)
 
 Note:
 
@@ -466,7 +464,6 @@ Create hosted zone mirahkeys.xyz
 
 You must have purchased a domain name from a domain provider and configured the nameservers.
 
-![Snipe 34](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/be0c0223-512d-46e6-b373-9ce3e184ac04)
 
 
 

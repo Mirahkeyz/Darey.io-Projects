@@ -1,6 +1,6 @@
 # Deploying and Packaging Applications into Kubernetes with Helm
 
-In Project-24, we acquired practical skills in using Helm to deploy applications on Kubernetes.
+In Project-28, we acquired practical skills in using Helm to deploy applications on Kubernetes.
 
 Now, in this project, we are focusing on deploying a suite of DevOps tools. Our goal is to confront and understand the typical challenges faced in real-world deployments while mastering effective troubleshooting strategies. We will explore the customization of Helm values files to automate application setups. Throughout the process of deploying different DevOps tools, we'll actively interact with them, comprehending their place in the DevOps lifecycle and how they integrate into the larger ecosystem.
 

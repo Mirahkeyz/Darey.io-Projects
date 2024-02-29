@@ -417,6 +417,698 @@ Notice the section with the configuration that selects the ingress controller us
 
 Create the artifactory-ingress.yaml manifest
 
+```
+cat <<EOF > artifactory-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: artifactory
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: "tooling.artifactory.dybran.com"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: artifactory-artifactory-nginx
+            port:
+              number: 80
+EOF
+
+```
+
+Create the ingress resource in the tools namespace
+
+$ kubectl apply -f artifactory-ingress.yaml -n tools
+
+Get the ingress resource
+
+$ kubectl get ingress -n tools
+
+![Snipe 33](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/829d3f7d-b186-436d-930f-e390f2c1af34)
+
+Note:
+
+CLASS - The nginx controller class name nginx
+
+HOSTS - The hostname to be used in the browser tooling.artifactory.mirahkeys.xyz
+
+ADDRESS - The loadbalancer address that was created by the ingress controller
+
+Configure DNS
+
+When accessing the tool, sharing the lengthy load balancer address poses significant inconvenience. The ideal solution involves creating a DNS record that's easily readable by humans and capable of directing requests to the balancer. This exact configuration is set within the ingress object as host: "tooling.artifactory.mirahkeys.xyz". However, without a corresponding DNS record, this host address cannot reach the load balancer.
+
+The "mirahkeys.xyz" portion of the domain represents the configured HOSTED ZONE in AWS. To enable this functionality, it's necessary to set up the Hosted Zone in the AWS console or include it as part of your infrastructure using tools like Terraform.
+
+Create hosted zone mirahkeys.xyz
+
+You must have purchased a domain name from a domain provider and configured the nameservers.
+
+![Snipe 34](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/adb10350-63d8-406e-9d6b-e4f62e71f105)
+
+Ensure that you utilize the Nameservers specified in the hosted zone to set up the Nameservers within your DNS provider, such as GoDaddy, Namecheap, and others.
+
+![Snipe 35](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/47143748-b9c4-4204-9398-ba1c4efbb070)
+
+Create Route53 record
+
+To establish a Route53 record, navigate to the hosted zone where essential DNS records are managed. For Artifactory, let's configure a record directing to the load balancer of the ingress controller. You have two choices: utilize either the CNAME or AWS Alias method.
+
+If opting for the CNAME Method,
+
+Choose the desired HOSTED ZONE.
+Click on the "Create Record" button to proceed.
+
+Please verify the DNS record's successful propagation. Go to DNS checker and choose CNAME to check the record. Make sure there are green ticks next to each location on the left-hand side. Please note that it may take some time for the changes to propagate.
+
+![Snipe 36](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/3b9d5f47-ff54-4d52-832d-f8918cbfe5ee)
+
+We can also check this using the command
+
+$ nslookup -type=ns tooling.artifactory.mirahkeys.xyz
+
+![Snipe 37](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0827367d-cda8-40d9-b819-01fa742123c6)
+
+AWS Alias Method
+
+In the create record section, type in the record name, and toggle the alias button to enable an alias. An alias is of A DNS record type which basically routes directly to the load balancer. In the choose endpoint bar, select Alias to Application and Classic Load Balancer.
+
+Accessing the application from the browser
+
+Accessing the application through your browser Presently, our Kubernetes-hosted application is reachable from outside sources. When you visit your domain's specific URL - tooling.artifactory.mirahkeys.xyz, the artifactory application should be accessible.
+
+Accessing the application using the HTTP protocol
+
+![Snipe 38](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/d9d42ee8-2da7-4749-87d2-6057781e70a2)
+
+When accessing the application via the HTTPS protocol in Chrome, you might see a message stating that the site is reachable but insecure. This happens when the site doesn't have a trusted TLS/SSL certificate, or it lacks one entirely.
+
+To view the certificate, click on the "Not Secure" section and then select "Certificate Not Valid."
+
+Explore Artifactory Web UI
+
+Get the default username and password - Run a helm command to output the same message after the initial install
+
+$ helm test artifactory -n tools
+
+![Snipe 39](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/006b81dc-c2e3-4605-b2ad-8e30f5adbb22)
+
+Insert the username and password to load the Get Started page
+
+![Snipe 40](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7cca1784-94f5-4849-a389-706b8a1378d7)
+
+Reset the admin password
+
+![Snipe 41](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/6fac2c4a-b405-4a81-800f-813338067649)
+
+Activate the Artifactory License. You will need to purchase a license to use Artifactory enterprise features.
+
+For learning purposes, you can apply for a free trial license. Simply fill the form here and a license key will be delivered to your email in few minutes.
+
+N/B: Make sur to check the box "schedule a technical demo"
+
+Check your email
+
+![Snipe 42](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7fabae3b-72bf-4f09-b423-1f7ef806dc4b)
+
+Copy and paste in the license section.
+
+Set Base URL. Be sure to use HTTPS i.e https://tooling.artifactory.mirahkeys.xyz
+
+![Snipe 43](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/6d4214b8-f590-4af7-9d9b-14f9cfed7c24)
+
+Click on next
+
+Skip Proxy settings and creating the repo for now.
+
+![Snipe 44](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/79d202d0-0328-4fc9-8513-962949bdb2fd)
+
+![Snipe 45](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/471fcb98-48ce-4684-bac6-cad2c40f7ebf)
+
+Finish the setup
+
+![Snipe 46](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/786e7a74-2cff-452c-8d11-a76aa7e220bb)
+
+![Snipe 47](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0dd9fe9e-b7d1-4cb9-b6a9-513386c14c76)
+
+Next, its time to fix the TLS/SSL configuration so that we will have a trusted HTTPS URL
+
+# Deploying Cert-Manager and managing TLS/SSL for Ingress
+
+Transport Layer Security (TLS), the successor of the now-deprecated Secure Sockets Layer (SSL), is a cryptographic protocol designed to provide communications security over a computer network. The TLS protocol aims primarily to provide cryptography, including privacy (confidentiality), integrity, and authenticity through the use of certificates, between two or more communicating computer applications. The certificates required to implement TLS must be issued by a trusted Certificate Authority (CA). To see the list of trusted root Certification Authorities (CA) and their certificates used by Google Chrome, you need to use the Certificate Manager built inside Google Chrome as shown below:
+
+Open the settings section of google chrome
+
+Search for security and click on Security - Safe Browsing (protection from dangerous sites) and other security settings
+
+Select Manage Certificates
+
+![Snipe 48](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/9cf24eea-d300-4177-8306-23d8949a6c41)
+
+View the installed certificates in your browser
+
+![Snipe 49](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/62a3094f-8523-4ca6-bda0-1ea666b5b10b)
+
+Certificate Management in Kubernetes
+
+Streamlining the acquisition and management of trusted certificates from dynamic certificate authorities is a challenging task. It involves overseeing certificate requests, issuance, expiration tracking, and application-specific certificate management, which can incur significant administrative overhead. This often requires the creation of intricate scripts or programs to handle these complexities.
+
+Cert-Manager is a lifesaver in simplifying these processes. Within Kubernetes clusters, Cert-Manager introduces certificates and certificate issuers as resource types. It streamlines the acquisition, renewal, and utilization of certificates same approach the Ingress Controllers facilitate the creation of Ingress resources within the cluster.
+
+Cert-Manager empowers administrators by enabling the creation of certificate resources and additional resources essential for seamless certificate management. It supports certificate issuance from various sources like Let's Encrypt, HashiCorp Vault, Venafi, and private PKIs. The resulting certificates are stored as Kubernetes secrets, housing both the private key and the public certificate for easy access and utilization.
+
+In this Project, we will use Let's Encrypt with cert-manager.
+
+The certificates issued by Let's Encrypt will work with most browsers because the root certificate that validates all it's certificates is called “ISRG Root X1” which is already trusted by most browsers and servers. You will find ISRG Root X1 in the list of certificates already installed in your browser.
+
+![Snipe 50](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/1477b83a-b359-4bb4-84c2-94561eb40786)
+
+Cert-maanager will ensure certificates are valid and up to date, and attempt to renew certificates at a configured time before expiry.
+
+Cert-Manager high Level Architecture
+
+Cert-manager works by having administrators create a resource in kubernetes called certificate issuer which will be configured to work with supported sources of certificates. This issuer can either be scoped globally in the cluster or only local to the namespace it is deployed to. Whenever it is time to create a certificate for a specific host or website address, the process follows the pattern seen in the image below.
+
+# Deploying Cert-manager
+
+Lets Deploy cert-manager helm chart in Artifact Hub, follow the installation guide and deploy into Kubernetes
+
+Create a namespace cert-manager
+
+$ kubectl create ns cert-manager
+
+Before installing the chart, you must first install the cert-manager CustomResourceDefinition resources. This is performed in a separate step to allow you to easily uninstall and reinstall cert-manager without deleting your installed custom resources.
+
+$ kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.2/cert-manager.crds.yaml -n cert-manager
+
+Add the Jetstack helm repo
+
+$ helm repo add jetstack https://charts.jetstack.io
+
+Install the cert-manager helm chart
+
+$ helm install cert-manager jetstack/cert-manager --version v1.13.2 --namespace cert-manager
+
+![Snipe 51](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f720631b-f8f2-4220-bcae-2af0faf0713a)
+
+Certificate Issuer
+
+In order to begin issuing certificates, you will need to set up a ClusterIssuer or Issuer resource.
+
+Create an Issuer. We will use a Cluster Issuer so that it can be scoped globally. Assuming that we will be using dybran.com domain. Simply update this yaml file and deploy with kubectl. In the section that follows, we will break down each part of the file.
+
+```
+cat <<EOF > cluster-issuer.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  namespace: "cert-manager"
+  name: "letsencrypt-prod"
+spec:
+  acme:
+    server: "https://acme-v02.api.letsencrypt.org/directory"
+    email: "infradev@oldcowboyshop.com"
+    privateKeySecretRef:
+      name: "letsencrypt-prod"
+    solvers:
+    - selector:
+        dnsZones:
+          - "mirahkeys.xyz"
+      dns01:
+        route53:
+          region: "us-west-1"
+          hostedZoneID: "Z02607852KCM9RZXQXSMI"
+EOF
+
+```
+
+The initial section shows the Kubernetes configuration, specifying the apiVersion, Kind and metadata. In this context, the Kind refers to a ClusterIssuer, indicating its global scope.
+
+In the spec section, an ACME - Automated Certificate Management Environment issuer type is specified here. When you create a new ACME Issuer, cert-manager will generate a private key which is used to identify you with the ACME server. Certificates issued by public ACME servers are typically trusted by client's computers by default. This means that, for example, visiting a website that is backed by an ACME certificate issued for that URL, will be trusted by default by most client's web browsers. ACME certificates are typically free. Let’s Encrypt uses the ACME protocol to verify that you control a given domain name and to issue you a certificate. You can either use the let's encrypt Production server address https://acme-v02.api.letsencrypt.org/directory which can be used for all production websites. Or it can be replaced with the staging URL https://acme-staging-v02.api.letsencrypt.org/directory for all Non-Production sites.
+
+The privateKeySecretRef has configuration for the private key name you prefer to use to store the ACME account private key. This can be anything you specify, for example letsencrypt-prod.
+
+This section is part of the spec that configures solvers which determines the domain address that the issued certificate will be registered with. dns01 is one of the different challenges that cert-manager uses to verify domain ownership. Read more on DNS01 Challenge here. With the DNS01 configuration, you will need to specify the Route53 DNS Hosted Zone ID and region. Since we are using EKS in AWS, the IAM permission of the worker nodes will be used to access Route53. Therefore if appropriate permissions is not set for EKS worker nodes, it is possible that certificate challenge with Route53 will fail, hence certificates will not get issued.
+
+The next section under the spec that configures solvers which determines the domain address that the issued certificate will be registered with. dns01 is one of the different challenges that cert-manager uses to verify domain ownership. Read more on DNS01 Challenge here. With the __ DNS01__ configuration, you will need to specify the Route53 DNS Hosted Zone ID and region. Since we are using EKS in AWS, the IAM permission of the worker nodes will be used to access Route53. Therefore if appropriate permissions is not set for EKS worker nodes, it is possible that certificate challenge with Route53 will fail, hence certificates will not get issued. The other possible option is the HTTP01 challenge, but we won't be using that.
+
+To get the Hosted Zone ID
+
+$ aws route53 list-hosted-zones
+
+![Snipe 52](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/2641446b-2c27-4ecd-8e33-f13860ed14c5)
+
+Update the yaml file.
+
+```
+cat <<EOF > cluster-issuer.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  namespace: "cert-manager"
+  name: "letsencrypt-prod"
+spec:
+  acme:
+    server: "https://acme-v02.api.letsencrypt.org/directory"
+    email: "infradev@oldcowboyshop.com"
+    privateKeySecretRef:
+      name: "letsencrypt-prod"
+    solvers:
+    - selector:
+        dnsZones:
+          - "mirahkeys.xyz"
+      dns01:
+        route53:
+          region: "us-west-1"
+          hostedZoneID: "Z02607852KCM9RZXQXSMI"
+EOF
+
+```
+
+Deploy with kubectl in the cert-manager namespace
+
+$ kubectl apply -f cluster-issuer.yaml -n cert-manager
+
+![Snipe 53](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/98eb1045-50d5-422c-8374-e737f13b4ad7)
+
+$ kubectl get pods -n cert-manager
+
+![Snipe 54](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0a3420bc-beac-4252-823c-e8ff65df715c)
+
+With the ClusterIssuer properly configured, it is now time to start getting certificates issued.
+
+Configuring Ingress for TLS
+
+To ensure that every created ingress also has TLS configured, we will need to update the ingress manifest with TLS specific configurations.
+
+```
+cat <<EOF > artifactory-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    kubernetes.io/ingress.class: nginx
+  name: artifactory
+spec:
+  rules:
+  - host: "tooling.artifactory.mirahkeys.xyz"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: artifactory-artifactory-nginx
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - "tooling.artifactory.mirahkeys.xyz"
+    secretName: "tooling.artifactory.mirahkeys.xyz"
+EOF
+
+```
+
+Create the updated artifactory-ingress.yaml
+
+$ kubectl apply -f artifactory-nginx.yaml -n tools
+
+![Snipe 55](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/06c0f910-848c-4139-9e90-3c18406aa403)
+
+The most significant updates to the ingress definition is the annotations and tls sections.
+
+Annotations are used similar to labels in kubernetes. They are ways to attach metadata to objects.
+
+Difference between Annotations and Label
+
+Annotations and labels serve distinct roles in Kubernetes resource management.
+
+Labels function as identifiers for resource grouping when used alongside selectors. To ensure efficient querying, labels adhere to RFC 1123 constraints, limiting their length to 63 characters. Therefore, utilizing labels is ideal for Kubernetes when organizing related resources into sets.
+
+On the other hand, annotations cater to "non-identifying information" or metadata that Kubernetes doesn't rely on. Unlike labels, there are no constraints imposed on annotation keys and values. Consequently, if the goal is to furnish additional information for human comprehension regarding a specific resource, annotations offer a more suitable choice.
+
+The Annotation added to the Ingress resource adds metadata to specify the issuer responsible for requesting certificates. The issuer here will be the same one we have created earlier with the name letsencrypt-prod
+
+```
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+```
+
+The other section is tls where the host name that will require https is specified. The secretName also holds the name of the secret that will be created which will store details of the certificate key-pair. i.e Private key and public certificate.
+
+```
+  tls:
+  - hosts:
+    - "tooling.artifactory.dybran.com"
+    secretName: "tooling.artifactory.dybran.com"
+```
+
+commands to see each resource at each phase.
+
+$ kubectl get certificaterequest -n tools
+
+$ kubectl get order -n tools
+
+$ kubectl get challenge -n tools
+
+$ kubectl get certificate -n tools
+
+Problem encoutered
+
+After applying the above command, i ran into some issues, my certicate remains in pending state.
+
+![Snipe 56](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/cd45937a-422b-43cc-8911-21521f90d791)
+
+During investigation on the challenge resource, I noticed a permission issue
+
+$ kubectl describe challenge tooling.artifactory.mirahkeys.xyz-1-1046896647-1545754586 -n tools
+
+![Snipe 57](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/0436de21-5021-427f-b036-bfcb409cfd9c)
+
+This means that there is an issue with presenting a challenge due to a permissions error related to Route 53 in AWS. The error indicates that the IAM role being assumed ( eksctl-miracle-eks-tooling-nodegro-NodeInstanceRole-yiGRAWmsjZxK) does not have the necessary permissions to perform the route53:ChangeResourceRecordSets action on the specified hosted zone (Z08522561JSS4FBNMMK3E).
+
+Resolution
+
+To resolve the permissions issue for the IAM role  eksctl-miracle-eks-tooling-nodegro-NodeInstanceRole-yiGRAWmsjZxK and allow it to perform the route53:ChangeResourceRecordSets action on the specific hosted zone (Z08522561JSS4FBNMMK3E).
+
+Identify the IAM role assumed by your EKS cluster nodes -  eksctl-miracle-eks-tooling-nodegro-NodeInstanceRole-yiGRAWmsjZxK
+
+![Snipe 58](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/e6ce0047-4d0b-4c41-838e-5331a89e402e)
+
+Update the IAM policy linked to this role by adding the required permissions for Route 53. Ensure that you authorize the route53:ChangeResourceRecordSets and route53:GetChange actions specifically for the designated hosted zone (arn:aws:route53:::hostedzone/Z08522561JSS4FBNMMK3).
+
+![Snipe 59](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f99f49f4-b708-4e26-839f-a3e1207b741a)
+
+You can see that the route53:ChangeResourceRecordSets is not included in the permission policy above.
+
+You can also get the attached policies using this command
+
+$ aws iam list-attached-role-policies --role-name eksctl-miracle-eks-tooling-nodegro-NodeInstanceRole-yiGRAWmsjZxK
+
+Create the IAM policy to be added to the role policy
+
+```
+cat <<EOF > ChangeResourceRecordSets.json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Statement",
+            "Effect": "Allow",
+            "Action": [
+                "route53:ChangeResourceRecordSets",
+                "route53:GetChange"
+            ],
+            "Resource": [
+                "arn:aws:route53:::hostedzone/Z08522561JSS4FBNMMK3E",
+                "arn:aws:route53:::change/C0567608HJ3CPCXTDOBL"
+            ]
+        }
+    ]
+}
+EOF
+
+```
+
+To obtain the route53:GetChange with the identifier (C03778642NCAAJ62J6XKO) in the above, navigate to the CNAME record for tooling.artifactory.mirahkeys.xyz, select the edit option, and subsequently click save without making any actual modifications. Afterward, proceed to click on view details.
+
+![Snipe 60](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ded94639-de0b-45d8-aebd-50ffd1e71e03)
+
+![Snipe 61](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/add02652-2087-42d3-aea2-724c9502c533)
+
+Apply the updated IAM policy to the IAM role. You can do this through the AWS Management Console or by using the AWS CLI
+
+aws iam create-policy --policy-name ChangeResourceRecordSets --policy-document file://ChangeResourceRecordSets.json
+
+After running the create-policy command, the output will include the Amazon Resource Name (ARN) of the created policy.
+
+Then attach the policy to the role
+
+aws iam attach-role-policy --role-name eksctl-miracle-eks-tooling-nodegrou-NodeInstanceRole-SQcjbXR7eFcD --policy-arn arn:aws:iam::939895954199:policy/ChangeResourceRecordSets
+
+![Snipe 62](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/08ebf9ac-b81f-407f-aec7-9faffc7f7f97)
+
+On the policies, we will see the newly created policy
+
+![Snipe 63](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/f528ee8f-85da-46e4-91c3-cc0bff363575)
+
+You can verify that the policy has been attached by running
+
+aws iam list-attached-role-policies --role-name eksctl-dybran-eks-tooling-nodegrou-NodeInstanceRole-SQcjbXR7eFcD
+
+![Snipe 64](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/faf1dc3a-4383-4e9a-93d6-24cb35a1621a)
+
+Ensure the IAM role establishes the accurate trust relationship with the EKS cluster, enabling the cluster to assume the role. The policy should grant permissions for AWS services eks.amazonaws.com and ec2.amazonaws.com to assume roles via (sts:AssumeRole). This practice is frequently employed to authorize services or resources for particular actions or access to specific resources within your AWS setup.
+
+On the role - eksctl-miracle-eks-tooling-nodegrou-NodeInstanceRole-HSWbuyw3gPhC, update the trust relationship with this
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": [
+                    "eks.amazonaws.com",
+                    "ec2.amazonaws.com"
+                ]
+            },
+            "Action": "sts:AssumeRole"
+        }
+    ]
+}
+```
+
+![Snipe 65](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/d241b1e5-2f4e-4613-b9ae-f459634ae36a)
+
+![Snipe 66](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/d4cee0ed-56e4-4f3d-9e90-ada41c667c2c)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

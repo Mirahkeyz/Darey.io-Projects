@@ -100,6 +100,47 @@ Step 7: Access Loki from a web browser:
 
 $ kubectl port-forward svc/loki-<release-name> 3100:3100 -n loki
 
+# Installing Grafana
+
+Step 1: Add the Grafana Helm chart repository:
+
+helm repo add grafana https://grafana.github.io/helm-charts
+
+Step 2: Update your local Helm chart repository cache:
+
+helm repo update
+
+Step 3: Install the Grafana chart with a release name of your choice (e.g., "grafana-release") in the desired namespace:
+
+helm install grafana grafana/grafana --namespace grafana --generate-name
+
+Step 4: Verify that Grafana is running:
+
+kubectl get pods -n grafana
+
+Step 5: Get the Grafana service details:
+
+kubectl get svc -n grafana
+
+Step 6: Access Grafana from a web browser:
+
+kubectl port-forward svc/grafana-<release-name> 3000:3000 -n grafana
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

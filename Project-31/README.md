@@ -162,6 +162,308 @@ Step 6: Access Grafana from a web browser:
 
 $ kubectl port-forward svc/grafana-<release-name> 3000:3000 -n grafana
 
+So far we installed the monitoring tools using default configurations. However you can customize the configurations of the tools to suit your environment by making alterations in helm values.yoml file.
+
+# Configuring Prometheus and Loki as Datasources to Grafana Prometheus
+
+Step 1: Locate the values.yaml file for your Grafana Helm chart installation 
+
+Step 2: Open the values.yaml file in a text editor.
+
+Step 3: Find the datasources section in the values.yaml file like the example below:
+
+```
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+```
+
+Step 4: Add the configuration below:
+
+```
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: prometheus-server.<namespace>.svc.cluster.local:9090
+        jsonData:
+          timeInterval: "5s"
+```
+
+Replace the namespace placeholder with the namespace where prometheus is installed 
+
+Step 5: Upgrade your Grafana Helm release with the modified values.yaml file:
+
+$ helm upgrade <release-name> grafana/grafana -f values.yaml -n grafana
+
+Step 6: Verify that the Grafana pod is running:
+
+$ kubectl get pods -n grafana
+
+Loki
+
+Step 1: Locate the values.yaml file for your Grafana Helm chart installation. 
+
+Step 2: Open the values.yaml file in a text editor.
+
+Step 3: Find the datasources section in the values.yaml file like the example below:
+ 
+```
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: prometheus-server.<namespace>.svc.cluster.local:9090
+        jsonData:
+          timeInterval: "5s"
+```
+
+Step 4: Add the configuration below:
+
+```
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: prometheus-server.<namespace>.svc.cluster.local:9090
+        jsonData:
+          timeInterval: "5s"
+
+      - name: Loki
+        type: loki
+        url: loki.<namespace>.svc.cluster.local:3100
+
+```
+
+In the configuration file above, we added loki as a second datasource to grafana. Take a good look at the subtle differences with the earlier one. 
+
+Step 5: Upgrade your Grafana Helm release with the 
+
+$ helm upgrade <release-name> grafana/grafana -f values.yaml -n grafana
+
+Step 6: Verify that the Grafana pod is running:
+ 
+$ kubectl get pods -n grafana
+
+Setting Up Alerts on Prometheus
+
+Step 1: Define alert rules: Create or modify an alert rule file in Prometheus' configuration like the example below: The file should have a .rules extention. Example alerts. rules •
+
+```
+groups:
+- name: example-group
+  rules:
+  - alert: HighErrorRate
+    expr: sum(rate(http_server_errors_total{status="500"}[5m])) > 10
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: High error rate on {{ $labels.instance }}
+      description: "The rate of HTTP 500 errors is above the threshold"
+```
+
+In this example configuralion file above, an alert named "HighErrorRate" is defined. It triggers when the rate of HTTP 500 errors exceeds 10 errors per second over a 5-minute window. The alert remains active for at least 1 minute
+
+Step 2: Mount the alert rule file into the Prometheus container: Update your Prometheus deployment configuration to mount the alert rule file into the Prometheus container. You can do this by modifying the Prometheus configuration file or using Kubernetes ConfigMaps or Secrets.
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: prometheus
+spec:
+  # ...
+  template:
+    spec:
+      volumes:
+      - name: alert-rules
+        configMap:
+          name: prometheus-alert-rules
+      containers:
+      - name: prometheus
+        image: prom/prometheus:latest
+        volumeMounts:
+        - name: alert-rules
+          mountPath: /etc/prometheus/alerts
+        # ...
+```
+
+Step 3: Configure Prometheus to reload alert rules: Modify the Prometheus configuration to include a rule file discovery configuration. This enables Prometheus to automatically discover and reload the alert rule files.
+
+Add the following configuration to your Prometheus configuration file (typically prometheus.yml):
+
+```
+rule_files:
+  - /etc/prometheus/alerts/*.rules
+```
+
+Step 4: Apply the updated Prometheus configuration: Apply the updated Prometheus configuration to your Prometheus deployment or configuration management tool. This step ensures that Prometheus uses the new alert rules and reloads them accordingly.
+
+Step 5: Monitor the alerts: Prometheus will continuously evaluate the alert rules based on the configured scrape intervals. If an alert condition is met, Prometheus will trigger the alert and send it to the configured alert manager (e.g., Alertmanager).
+
+Configure the alert manager in your Prometheus configuration to define the destination for alerts. The Alertmanager can then handle the alerts, including sending notifications or performing other actions based on the defined rules.
+
+Here's an example of configuring the Alertmanager in prometheus.yml:
+
+```
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - alertmanager:9093
+```
+
+Step 6: Monitor and manage alerts in the Alertmanager: Access the Alertmanager UI to monitor and manage the alerts. The Alertmanager provides a web
+interface where you can view triggered alerts, configure notification receivers (e.g., email, Slack, PagerDuty), silence alerts, and more.
+
+To access the Alertmanager UI, open your web browser and navigate to the URL of the Alertmanager, which is typically in the format: http://:. Replace and with
+the appropriate values for your setup.
+
+![hello 3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ef11a102-73b8-4722-85fb-d01bd9adc638)
+
+Service discovery in Kubernetes monitoring refers to the process of automatically detecting and keeping track of the available services and their
+corresponding endpoints within a Kubernetes cluster. In Kubernetes, services are an abstraction layer that enables communication between different
+components or microservices within the cluster.
+
+Monitoring in Kubernetes involves collecting and analyzing data about the health, performance, and availability of various resources and services running in
+the cluster. Service discovery plays a crucial role in monitoring because it allows monitoring tools and systems to dynamically discover and monitor the services
+without requiring manual configuration.
+
+Here's how service discovery works in Kubernetes monitoring:
+
+1. Kubernetes Services: In Kubernetes, services are created to expose and enable communication between sets of pods. Each service has a stable virtual IP
+address and a DNS name. Services can be of different types, such as Cluster|P, NodePort, or LoadBalancer, depending on the desired networking
+configuration.
+
+2. DNS-Based Service Discovery: Kubernetes uses DNS-based service discovery to provide a dynamic way of resolving service names to their
+corresponding IP addresses. Each service gets a DNS entry automatically assigned to it within the cluster's DNS. Monitoring tools can leverage this DNS
+resolution mechanism to discover and monitor the services.
+
+3. Monitoring Tools: Monitoring tools deployed in the Kubernetes cluster can use the DNS names of services to discover and monitor them. They can
+periodically query the DNS to obtain the IP addresses of services or use the Kubernetes API to get the list of available services and their endpoints. Once
+the monitoring tools have the IP addresses, they can monitor the services’ health, response times, resource utilization, and other metrics.
+
+4. Dynamic Updates: Service discovery in Kubernetes monitoring is dynamic because services and their endpoints can change frequently due to scaling,
+updates, or failures. Monitoring tools should be able to handle these dynamic updates and adjust their monitoring targets accordingly. They may use
+mechanisms such as watching the Kubernetes API for changes, re-resolving DNS entries, or utilizing the Kubernetes event stream to stay up to date with
+service changes.
+
+By leveraging service discovery in Kubernetes monitoring, organizations can automate the process of monitoring their services, reduce manual configuration,
+and ensure that monitoring remains accurate and up to date as the cluster evolves.
+
+# Performance Testing And Monitoring
+
+![hello 3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/81e9c966-8a5f-4f17-a0f2-5512132b10c2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -72,6 +72,43 @@ Step 7: Access Prometheus from a web browser:
 
 kubectl port-forward svc/prometheus-<release-name> 9090:9090 -n prometheus
 
+# Installing Grafana Loki
+
+Step 1: Make sure you have Helm installed and initialized in your Kubernetes cluster. If you haven't done so. you can follow the Helm installation guide: https://helm.sh/docs/intro/install/
+
+Step 2: Add the Bitnami Helm chart repository:
+
+$ helm repo add bitnami https://charts.bitnami.com/bitnami
+
+Step 3: Update your local Helm chart repository cache:
+
+$ helm repo update
+
+Step 4: Install the Grafana Loki chart with a release name of your choice (e.g.. "loki-release") in the desired namespace:
+
+$ helm install loki bitnami/loki --namespace loki --generate-name
+
+Step 5: Verify that Grafana Loki is running:
+
+kubectl get pods -n loki
+
+Step 6: Get the Loki service details:
+
+kubectl get svc -n loki
+
+Step 7: Access Loki from a web browser:
+
+$ kubectl port-forward svc/loki-<release-name> 3100:3100 -n loki
+
+
+
+
+
+
+
+
+
+
 
 
 

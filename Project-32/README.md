@@ -52,25 +52,39 @@ Step 2: Add the Prometheus Helm chart repository:
  
 $ helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 
+![Snipe 1](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/43462a20-cf4a-4c10-994c-23fb8d587447)
+
 Step 3: Update your local Helm chart repository cache:
 
 $ helm repo update
 
+![Snipe 2](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/82d4bb7f-0450-405a-b4f2-4ece77f93128)
+
 Step 4: Install the Prometheus chart with a release name of your choice (e.g., "prometheus-release") in the "prometheus" namespace:
 
-$ helm install prometheus prometheus-community/prometheus --namespace prometheus --generate-name
+$ helm install my-prometheus prometheus-community/prometheus --namespace prometheus
+
+![Snipe 3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c2b8e4f0-cfae-4cce-984f-e677159e3231)
 
 Step 5: Verify that prometheus is running:
 
 kubectl get pods -n prometheus
 
+![Snipe 4](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/38855247-44c0-43e9-b61c-43bf48aefa95)
+
 Step 6: Get the prometheus service details:
 
-kubectl get svc -n prometheus
+$ kubectl get svc -n prometheus
+
+![Snipe 5](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/e6211a7d-adab-4921-9d43-5c66f3037837)
 
 Step 7: Access Prometheus from a web browser:
 
-kubectl port-forward svc/prometheus-<release-name> 9090:9090 -n prometheus
+$ kubectl port-forward svc/my-prometheus-server 8080:80 -n prometheus
+
+![Snipe 6](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/4f40e110-7497-4d41-96c0-091272e03be0)
+
+![Snipe 7](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c502ff6c-8873-4293-85d2-fed7aff4e125)
 
 # Installing Grafana Loki
 
@@ -80,51 +94,73 @@ Step 2: Add the Bitnami Helm chart repository:
 
 $ helm repo add bitnami https://charts.bitnami.com/bitnami
 
+![Snipe 8](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/dbaa1a12-9416-420d-b5aa-486fc02da8c2)
+
 Step 3: Update your local Helm chart repository cache:
 
 $ helm repo update
 
+![Snipe 9](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/90289670-3708-470f-8b8d-dc29aebf27eb)
+
 Step 4: Install the Grafana Loki chart with a release name of your choice (e.g.. "loki-release") in the desired namespace:
 
-$ helm install loki bitnami/loki --namespace loki --generate-name
+$ helm install my-loki bitnami/loki --namespace loki
+
+![Snipe 10](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/597be7c2-2f19-4589-b31f-53107c4da7ae)
 
 Step 5: Verify that Grafana Loki is running:
 
-kubectl get pods -n loki
+$ kubectl get pods -n loki
+
+![Snipe 11](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/fde81d3d-cc48-43e6-a047-65a9cf96a14a)
 
 Step 6: Get the Loki service details:
 
-kubectl get svc -n loki
+$ kubectl get svc -n loki
+
+![Snipe 12](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/e9731074-0191-4c18-a1c8-6b14645201c0)
 
 Step 7: Access Loki from a web browser:
 
-$ kubectl port-forward svc/loki-<release-name> 3100:3100 -n loki
+$ kubectl port-forward svc/my-loki-grafana-loki-querier 3100:3100 -n loki
+
+![Snipe 13](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/4d6b1756-7d83-427d-8a00-836f6d3418d6)
 
 # Installing Grafana
 
 Step 1: Add the Grafana Helm chart repository:
 
-helm repo add grafana https://grafana.github.io/helm-charts
+$ helm repo add grafana https://grafana.github.io/helm-charts
+
+![Snipe 14](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/21690000-b8d0-464c-87c6-2991b55ce456)
 
 Step 2: Update your local Helm chart repository cache:
 
-helm repo update
+$ helm repo update
+
+![Snipe 15](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/7493cdc6-e63f-4267-a135-d62bf1ada665)
 
 Step 3: Install the Grafana chart with a release name of your choice (e.g., "grafana-release") in the desired namespace:
 
-helm install grafana grafana/grafana --namespace grafana --generate-name
+$ helm install grafana grafana/grafana --namespace grafana --generate-name
+
+![Snipe 16](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/873497f5-d3b7-4108-beb4-ee845aab1481)
 
 Step 4: Verify that Grafana is running:
 
-kubectl get pods -n grafana
+$ kubectl get pods -n grafana
+
+![Snipe 17](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/612771a6-803c-423b-9326-7cd187de7191)
 
 Step 5: Get the Grafana service details:
 
-kubectl get svc -n grafana
+$ kubectl get svc -n grafana
+
+![Snipe 18](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/2391ff6e-acef-4653-8bde-393a446d7243)
 
 Step 6: Access Grafana from a web browser:
 
-kubectl port-forward svc/grafana-<release-name> 3000:3000 -n grafana
+$ kubectl port-forward svc/grafana-<release-name> 3000:3000 -n grafana
 
 
 

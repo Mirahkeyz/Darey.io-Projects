@@ -435,10 +435,34 @@ Upgrade Jenkins with the latest update and you should see the system message lik
 
 ![hello 1](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c6078cd1-8d8e-40cb-b4f5-38c1c97c2e10)
 
+The JCasC functionality is actually a Jenkins plugin. It is one of the most interesting plugins that makes configuring Jenkins very easy. It’s source code can be
+found here https://github.com/jenkinsci/configuration-as-code-plugin
 
+Without the JCasC plugin, setting up Jenkins is a complex process, as both Jenkins and its plugins require some tuning and configuration, with dozens of
+parameters to set within the web UI manage section.
 
+Experienced Jenkins users rely on groovy init scripts to customize Jenkins and enforce the desired state. Those scripts directly invoke Jenkins API and, as such,
+can do everything (at your own risk). But they also require you to know Jenkins internals and are confident in writing groovy scripts on top of Jenkins API.
 
+The Configuration as Code plugin is an opinionated way to configure Jenkins based on human-readable declarative configuration files. Writing such a file
+should be feasible without being a Jenkins expert.
 
+To see some examples of the different configuration that can be done as code with Jenkins, navigate to the deme folder in the source code here
+https://github.com/jenkinsci/configuration-as-code-plugin/tree/master/demos
+
+Now let's see the latest configuration applied to Jenkins through JCasC and Helm;
+
+1. Navigate to Configuration as code section in Jenkins UI. Click on Configuration as Code
+
+![hello 2](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/3f8fab4f-efda-48da-a709-129a81639851)
+
+2. Click on View Configuration
+
+![hello 3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/90c9a5f7-2583-4d07-89db-1f8b00068fd1)
+
+3. You will see the updated code configuration here
+
+![hello 1](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/2cc92485-26cf-4b66-88f8-f49777db60ba)
 
 
 

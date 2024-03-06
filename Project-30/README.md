@@ -159,6 +159,77 @@ controller:
   imagePullPolicy: "Always"
 ```
 
+• Then do a helm upgrade using the jenkins-values-overide.yaml file 
+
+$ helm upgrade -i jenkins jenkinsci/jenkins -n tools -f jenkins-values-overide.yaml 
+
+• This should do an upgrade, but without any specific changes to the existing deployment. Thats because no configuration change has occured. All we now have is a shortened values file that can be easily read without too many options. With this file you can now start making configuration updates. 
+
+• To configure Jenkins ingress directly from the helm values, simply search for the ingress: section in the default values file and copy the entire section to the override values file. 
+
+The default one should look similar to this
+
+```
+  ingress:
+    enabled: false
+    # Override for the default paths that map requests to the backend
+    paths: []
+    # - backend:
+    #     serviceName: ssl-redirect
+    #     servicePort: use-annotation
+    # - backend:
+    #     serviceName: >-
+    #       {{ template "jenkins.fullname" . }}
+    #     # Don't use string here, use only integer value!
+    #     servicePort: 8080
+    # For Kubernetes v1.14+, use 'networking.k8s.io/v1beta1'
+    # For Kubernetes v1.19+, use 'networking.k8s.io/v1'
+    apiVersion: "extensions/v1beta1"
+    labels: {}
+    annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
+    # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
+    # ingressClassName: nginx
+    # Set this path to jenkinsUriPrefix above or use annotations to rewrite path
+    # path: "/jenkins"
+    # configures the hostname e.g. jenkins.example.com
+    hostName:
+    tls:
+    # - secretName: jenkins.cluster.local
+    #   hosts:
+    #     - jenkins.cluster.local
+
+```
+
+o Given the ingress section copied above, attempt to update it with values for your specific ingress. Have a look through the ingress file you used to create the ingress previously and see what sections you require to update the values. For example 
+■ Enable the ingress value from false to -true 
+
+■ Add the annotations you already used to create the ingress before 
+
+■ Add the hostname 
+
+■ Update the us section with the 'a-ccrcr-di e and s information. O The final output should look similar to this 
+
+```
+ingress:
+  enabled: true
+  apiVersion: "extensions/v1beta1"
+  annotations: 
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
+    kubernetes.io/ingress.class: nginx
+  hostName: tooling.jenkins.sandbox.svc.darey.io
+  tls:
+  - secretName: tooling.jenkins.sandbox.svc.darey.io
+    hosts:
+      - tooling.jenkins.sandbox.svc.darey.io
+```
+
+o Now upgrade the Jenkins deployment with helm upgrade command. Remember to specify the override yaml file with the -f file. 
+
+
+
 
 
 

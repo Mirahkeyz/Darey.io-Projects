@@ -228,6 +228,427 @@ ingress:
 
 o Now upgrade the Jenkins deployment with helm upgrade command. Remember to specify the override yaml file with the -f file. 
 
+Jenkins rely heavily on plugins to extend its CI capabilities. As you know already, Blueocean is one of the widely used Jenkins plugin that gives much better experience. There are loads of other plugins that you may require to use as business requirements, and technical needs change. 
+
+Manually installing Jenkins plugins is definitely a bad idea. As a DevOps engineer, you want to be able to rely on your automated processes, thereby reducing manual configurations as much as possible. 
+
+There are 2 possible options to this. 
+1. You could use Helm values to automate plugin installation
+
+2. You could package the required plugins as part of the Jenkins image. 
+
+Which ever option works just fine, Its a matter of choice and unique environment setup in an organisation. 
+
+Option 1 is the easiest and most straight forward approach. But it may slow down initial deployment of Jenkins since it has to download the plugins. Also, if the kubernetes workers are completely closed from the internet. Hence, downloading plugins over the internet will not work, in this case Option 2 is the way out. 
+
+In the original values file, search for installPlugins: and you should see a section like below. 
+
+```
+  # List of plugins to be install during Jenkins controller start
+  installPlugins:
+    - kubernetes:3600.v144b_cd192ca_a_
+    - workflow-aggregator:581.v0c46fa_697ffd
+    - git:4.11.3
+    - configuration-as-code:1429.v09b_044a_c93de
+
+  # Set to false to download the minimum required version of all dependencies.
+  installLatestPlugins: true
+
+  # Set to true to download latest dependencies of any plugin that is requested to have the latest version.
+  installLatestSpecifiedPlugins: false
+
+  # List of plugins to install in addition to those listed in controller.installPlugins
+  additionalPlugins: []
+```
+
+In the override yaml file, you can add the installplugins: and additional plugins: so that your updated override values file will look like the below
+
+```
+controller:
+  ingress:
+    enabled: true
+    apiVersion: "extensions/v1beta1"
+    annotations: 
+      cert-manager.io/cluster-issuer: "letsencrypt-production"
+      kubernetes.io/ingress.class: nginx
+    hostName: tooling.jenkins.sandbox.svc.darey.io
+    tls:
+    - secretName: tooling.jenkins.sandbox.svc.darey.io
+      hosts:
+        - tooling.jenkins.sandbox.svc.darey.io
+
+  installPlugins:
+    - kubernetes:3600.v144b_cd192ca_a_
+    - workflow-aggregator:581.v0c46fa_697ffd
+    - git:4.11.3
+    - configuration-as-code:1429.v09b_044a_c93de
+
+  additionalPlugins: []
+```
+
+If you need to include more plugins, you can use the additionalPlugins: key. the [ j there simply means the key has a default null value and it is a t data type. Hence to start adding more plugins you simply need to update that section like below. 
+
+```
+additionalPlugins:
+  - blueocean:1.25.5
+  - credentials-binding:1.24
+  - git-changelog:3.0
+  - git-client:3.6.0
+  - git-server:1.9
+  - git:4.5.1
+```
+
+If you are wondering how to get the correct plugin version number, it is already provided on the same website where each plugin is documented at https://plugins.jenkinsio 
+
+Lets take the Blue Ocean plugin as an example. Navigate to https://plugins.jenkins.i o/blueocea n/ and see the Version section as shown below. 
+
+![hello](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/ba161d6b-40f7-43f9-8ad4-2f0ae4fc70b9)
+
+Option 2 requires an extra overhead. Because you must create a Dockerfile for the Jenkins Controller or (Master), package the Jenkins docker image with the plugins already installed, then update the image: value in the helm values override file. The good thing about this approach, despite its overhead is that even when the Kubernetes cluster is locked down in a private network, the dependencies are already packaged into the image and there is no need to download anything from the internet. 
+
+Lets see what this process would look like. 
+• Create a folder structure and empty files like below 
+
+```
+    ├── Dockerfile
+    └── scripts
+        └── install-plugins.sh
+
+```
+ 
+• Update the Dockerfile with below content 
+
+ ```
+FROM jenkins/jenkins:2.354-jdk11
+
+USER root
+
+COPY scripts/ /opt/scripts/
+
+RUN apt-get update && apt-get -y upgrade && \
+    chmod u+x /opt/scripts/install-plugins.sh && \
+    /opt/scripts/install-plugins.sh 
+
+USER jenkins
+```
+
+Self challenge Task: Analyse the above Dockerfile and attempt to summarise the steps
+
+- Update the install-plugins.sh
+
+  ```
+      #!/bin/bash
+
+    # A variable to hold an array of all the plugins to be installed
+
+    plugins=(
+    workflow-basic-steps:948.v2c72a_091b_b_68
+    blueocean:1.25.5
+    credentials-binding:1.24
+    git-changelog:3.0
+    git-client:3.6.0
+    git-server:1.9
+    git:4.5.1
+    )
+
+    # A for loop to iterate over the plugins array, and execute the jenkins-plugin-cli command to instal each plugin.
+
+    for plugin in "${plugins[@]}"
+    do
+      echo "Installing ${plugin}"
+      jenkins-plugin-cli --plugins ${plugin}
+    done
+
+```
+
+• Run docker commands to build, tag and push the docker image to the artifactory registry you created in previous project. 
+
+• Update the Jenkins helm values and point the new image to the private docker registry for Jenkins. Also, ensure that the values file have these keys set: 
+
+```
+installPlugins: []
+additionalPlugins: []
+```
+
+• Login to Jenkins and verify that the plugins have been installed. 
+
+0 Another way to verify the installation of the plugins is to exec into the pod container and check the filesystem. The command is -1t1- /var/jenkins_home/plugins/ I grep blueocean should return files relating to the plugin. If it returns empty, then the plugin has not been installed. 
+
+```
+kubectl exec -it jenkins-0 -n tools -- bash
+
+echo $JENKINS_HOME
+/var/jenkins_home
+
+ls -ltr /var/jenkins_home/plugins/ | grep blueocean
+```
+
+1. Automating Jenkins Configuration As Code (JCasC) 
+Managing infrastructure "as code is not only when you provision compute resources in the cloud or on-premise. Being able to reproduce and/or restore an entire environment within minutes extends beyond compute resourc eprovisioning, but also its configuration. There is so much configuration that can be done nith Jenkins. Manually updating such configs from the user interface (UI) is not sustainable. Imagine creating a lot of folders to manage multiple projects and pipelines from the Jenkins UI and losing the Jenkins installation afterwards. You will have to manually recreate all the folders again. With Jenkins Configuration 4s Code (JCasC), this process can be automated and all configurations in Jenkins can now be represented as "code" 
+
+Ensure that all the installed plugins are using the latest version. Visit https://plugins.jenkinsio/, then search for the plugin to get the latest version number. 
+
+To start managing Jenkins as code, search for :ca : within the default yaml values file. That is the section where configuration as code needs to be :onfigured. 
+
+Copy that section out of the default and put it in the override yaml file. 
+
+```
+  JCasC:
+    defaultConfig: true
+    configScripts: {}
+    #  welcome-message: |
+    #    jenkins:
+    #      systemMessage: Welcome to our CI\CD server.  This Jenkins is configured and managed 'as code'.
+    # Ignored if securityRealm is defined in controller.JCasC.configScripts and
+    securityRealm: |-
+      local:
+        allowsSignup: false
+        enableCaptcha: false
+        users:
+        - id: "${chart-admin-username}"
+          name: "Jenkins Admin"
+          password: "${chart-admin-password}"
+    # Ignored if authorizationStrategy is defined in controller.JCasC.configScripts
+    authorizationStrategy: |-
+      loggedInUsersCanDoAnything:
+        allowAnonymousRead: false
+```
+
+The configScripts: { } key shows that it is empty. The curly brackets ; ; indicates that it is configured to hold a dictionary type of data. This means that it can hold sub-keys with their own respective key and values. As you can see in the example below it. 
+
+```
+    configScripts: {}
+    #  welcome-message: |
+    #    jenkins:
+    #      systemMessage: Welcome to our CI\CD server.  This Jenkins is configured and managed 'as code'.
+```
+
+To enable that section, simply remove the { } and uncomment the first key welcome-message . You can write whatever you want in the systernmessage . For example. 
+
+```    configScripts:
+      welcome-message: |
+        jenkins:
+          systemMessage: Welcome to Darey.io Multi-tenant CI\CD server.  This Jenkins is configured and managed strictly 'as code'. Please do not update Manually
+```
+
+Upgrade Jenkins with the latest update and you should see the system message like below. 
+
+![hello 1](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/c6078cd1-8d8e-40cb-b4f5-38c1c97c2e10)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

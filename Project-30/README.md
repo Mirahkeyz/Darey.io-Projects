@@ -52,3 +52,133 @@ Remember, a virtual repository aggregates several repositories under a common UR
 ![Snipe 11](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/641d5622-0853-418c-8892-5bb88bc443f1)
 
 ![Snipe 12](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/bfad5596-b23f-464c-a8e2-eb562ed222a7)
+
+# Push docker images to the repository 
+
+You can either pull and push docker images to the local repository for each application, or simply pull from the virtual repository. 
+
+Lets get docker images from docker hub and push to our private registry. 
+
+• First you will need to login to the docker registry. 
+ 
+$ docker login tooling.artifactory.sandbox.svc.darey.io 
+
+• A successful login will create a file here N/ .docker/config. j son Explore this file and see how the authentication data is stored. The section is an encoding of your username and password. You can try to decode it with base64 to see the output. 
+
+```
+{
+        "auths": {
+                "tooling.artifactory.sandbox.svc.darey.io": {
+                        "auth": "YWRtaW46dGVzdF9wYXNzd29yZA=="
+                }
+        }
+}
+```
+
+- Pull the Jenkins image from the docker hub
+
+  $ docker pull jenkins/jenkins:jdk11
+
+- Tag the images so that it can be pushed to the artifactory
+
+  $ docker tag jenkins/jenkins:jdk11 https://tooling.artifactory.sandbox.svc.darey.io/jenkins/jenkins:jdk11
+
+- Push the docker image to Artifactory
+
+$ docker push tooling.artifactory.sandbox.svc.darey.io/jenkins/jenkins:jdk11
+
+# Jenkins pipeline for Business Applications
+
+In earlier projects, pipeline for the Tooling app was based on Ansible. This time, we are containerising the same application. Since the app will be running inside a kubernetes cluster within a Pod container, then the approach to Cl/CD will be different. 
+
+There will be different elements to Cl/CD here. The build of the application, and the deployment into kubernetes. 
+
+1. The Dockerft le used to build the tooling app's docker image will have its own Cl/CD pipeline
+2. The helm charts used to deploy the application into kubernetes will require its own Cl/CD pipeline
+   
+Therefore, we will begin with the first one. But without jumping straight to creating pipelines, we must also consider the best way to automate the deployment and configuration of the Cl/CD tool (Jenkins) such that it is fit for purpose, and can be easily recreated with the exact same config. 
+
+Self Challenge Task: 
+
+• Using helm, deploy Jenkins and sonarqube into the tools namespace. 
+• Configure TLS based ingress for both Jenkins and Sonarqube. (Use the Helm Values to configure Ingress directly) 
+• Create a Multibranch pipeline for the tooling app. 
+• Connect the tooling app from Github https://github.com/darey-devops/tooling 
+
+If you were able to successfully implement that challenge, then thumbs up to you. 
+
+Lets go through each of the steps. 
+
+# Deploy Jenkins with helm 
+
+Phase 1- Deploy without any custom configuration to the Helm Values (Do the whole of this part yourself) 
+
+1. Without any custom configuration, get the Jenkins Helm chart from artifacthub.io, and deploy using the default values.
+
+2. Configure DNS for jenkins and route traffic to the ingress controller load balancer
+
+3. Deploy an ingress without TLS
+
+4. Ensure that you are able to access the configured URL
+
+5. Ensure that you are able to loon to Jenkiins. 
+
+6. Update the Ingress and configure TLS for the URL
+
+Phase 2 - Use an override values file to customize Jenkins deployment (You will be guided in this part) 
+
+The default helm values file has so many configuration tweaks to customize Jenkins. We will explore some of these and ensure that all desired configuration is done using the helm values only. For example, using another YAML file to configure the ingress is removed. 
+
+Tasks: 
+
+1. Configure Jenkins Ingress using Helm Values
+
+2. Automate Jenkins plugin installation
+
+3. Automating Jenkins Configuration As Code (JCasC)
+
+4. Automating Jenkins backups to AWS S3 
+
+Lets get started (Note that the version numbers in provided screenshots or code snippets may have changed from the time of writing. Ensure to update the numbers as provided by the Helm chart) 
+
+1. Configure Jenkins Ingress using Helm Values 
+
+o Delete the previous Ingress using kubectl delete command. 
+
+o Create a new file and name it jenkins-values-overide.yaml  
+
+Find the below section in the default values file. Copy and paste it exactly in the jenkins-values-overide.yaml 
+
+```
+controller:
+  # Used for label app.kubernetes.io/component
+  componentName: "jenkins-controller"
+  image: "jenkins/jenkins"
+  # tag: "2.332.3-jdk11"
+  tagLabel: jdk11
+  imagePullPolicy: "Always"
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

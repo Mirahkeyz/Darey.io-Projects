@@ -464,6 +464,340 @@ Now let's see the latest configuration applied to Jenkins through JCasC and Helm
 
 ![hello 1](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/2cc92485-26cf-4b66-88f8-f49777db60ba)
 
+Another example of automating Jenkins as code, is to create a multibranch pipline as part of Jenkins bootstrapping. Rather than going into the console to manually configure a pipeline. 
+
+Lets automate the creation of the tooling application's pipeline. 
+
+First we need to create the credential to connect to the Github account where the tooling app is. If you have been following the PBL projects from Project 6, then you should already have the tooling app forked into your github account. If not, go ahead and fork it from here - Tooling App 
+
+Follow the below steps. NOTE: There is minimal guide on how to do the things listed below 
+
+1. Create an access token from GitHub so that Jenkins canm use it to connect to the Github account. https://github.com/settings/tokens
+
+2. Using base64. encode the generated token
+
+3. Create a secret in the same namespace where Jenkins is installed. Name the key github_token or whatever you wish. It doesn't matter what it is called. But, take note of the name you use becuase it will be used elsewhere. See an example below. Replace the value with the encoded token you created earlier. 
+
+```
+        apiVersion: v1
+        data:
+          github_token: Z2hwXzZQNThsUUNlfdjhfGakRLNDc1Q1FsS3BmZGU0Zk02ZjJDb1VCTA==
+        kind: Secret
+        metadata:
+          name: github
+        type: Opaque
+```
+
+In the values file, we now need to update the key additionalExistingSecrets:
+
+```
+  additionalExistingSecrets:
+    - name: github
+      keyName: github_token
+```
+
+Note: This is just to make jenkins aware of the secrets. we still need to use it in the credentials section so that jenkins can connect to Github with it
+
+Then create a folder to hold your pipelines
+
+```
+  JCasC:
+    enabled: true
+    configScripts:
+      welcome-message: |
+        jenkins:
+          systemMessage: Welcome to Darey.io Multi-tenant CI\CD server.  This Jenkins is configured and managed strictly 'as code'. Please do not update Manually
+      pipeline: |
+        jobs:
+          - script: >
+              folder('DAREY.IO') {
+                displayName('DAREY.IO')
+                description('Contains DAREY.IO Jenkins Pipelines')
+              }
+```
+
+When you apply the latest changes , you should be able to see the folder created but it doesnt have a pipeline
+
+![hello 1](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/a248ef7e-7b64-40e8-87fd-b4297ee39dc6)
+
+Now lets create a pipeline that will automatically be added to the folder upon installation
+
+The entire overide values file should look like this
+
+```
+controller:
+  image: "dareyregistry/jenkins"
+  tag: "2.357-jdk11.03"
+  ingress:
+    enabled: true
+    apiVersion: "extensions/v1beta1"
+    annotations: 
+      cert-manager.io/cluster-issuer: "letsencrypt-production"
+      kubernetes.io/ingress.class: nginx
+    hostName: tooling.jenkins.sandbox.svc.darey.io
+    tls:
+    - secretName: tooling.jenkins.sandbox.svc.darey.io
+      hosts:
+        - tooling.jenkins.sandbox.svc.darey.io
+  installPlugins: []
+
+  additionalExistingSecrets:
+    - name: github
+      keyName: github_token
+      
+  JCasC:
+    enabled: true
+    configScripts:
+      welcome-message: |
+        jenkins:
+          systemMessage: Welcome to Darey.io Multi-tenant CI\CD server.  This Jenkins is configured and managed strictly 'as code'. Please do not update Manually
+      pipeline: |
+        jobs:
+          - script: >
+              folder('DAREY.IO') {
+                displayName('DAREY.IO')
+                description('Contains DAREY.IO Jenkins Pipelines')
+              }
+          - script: >
+              multibranchPipelineJob('DAREY.IO/tooling-app') {
+                branchSources {
+                  git {
+                    remote('https://github.com/darey-devops/tooling.git')
+                    credentialsId('github')
+                    id('tooling-app')
+                  }
+                }
+              }
+      security-config: |
+        credentials:
+            system:
+              domainCredentials:
+              - credentials:
+                - usernamePassword:
+                    id: github
+                    username: darey-io
+                    password: ${github-github_token}
+                    scope: GLOBAL
+                    description: Github
+```
+
+The most important part you must take note of is the credentials section where the secret we created earlieris used.
+
+Below is the exact install-plugin.sh script used for that image tag
+
+```
+#!/bin/bash
+plugins=(
+workflow-basic-steps:948.v2c72a_091b_b_68
+ace-editor:1.1
+ansicolor:0.7.3
+antisamy-markup-formatter:2.1
+apache-httpcomponents-client-4-api:4.5.13-1.0
+authentication-tokens:1.4
+badge:1.8
+bootstrap4-api:4.5.3-1
+bouncycastle-api:2.18
+branch-api:2.6.3
+build-blocker-plugin:1.7.3
+build-monitor-plugin:latest
+blueocean:1.25.5
+checks-api:1.2.0
+cloudbees-folder:6.15
+command-launcher:1.5
+configuration-as-code:1464.vd8507b_82e41a_
+config-file-provider:3.7.0
+credentials-binding:523.vd859a_4b_122e6
+credentials:1139.veb_9579fca_33b_
+dashboard-view:2.14
+dependency-check-jenkins-plugin:5.1.1
+display-url-api:2.3.4
+durable-task:1.35
+echarts-api:4.9.0-2
+email-ext:2.80
+font-awesome-api:5.15.1-1
+git-changelog:3.0
+git-client:3.6.0
+git-server:1.9
+git:4.11.3
+groovy-postbuild:2.5
+handlebars:1.1.1
+hashicorp-vault-plugin:3.7.0
+htmlpublisher:1.25
+jackson2-api:2.12.1
+jacoco:3.1.0
+jdk-tool:1.4
+job-dsl:1.77
+jquery-detached:1.2.1
+jquery3-api:3.5.1-2
+jsch:0.1.55.2
+junit:1.48
+kubernetes-client-api:5.12.2-193.v26a_6078f65a_9
+kubernetes-credentials:0.9.0
+kubernetes:3651.v908e7db_10d06
+ldap:2.2
+lockable-resources:2.10
+mailer:1.32.1
+mask-passwords:3.0
+matrix-auth:2.6.4
+matrix-project:1.18
+metrics:4.0.2.6
+momentjs:1.1.1
+pipeline-build-step:2.13
+pipeline-graph-analysis:1.10
+pipeline-input-step:2.12
+pipeline-milestone-step:1.3.1
+pipeline-model-api:1.7.2
+pipeline-model-definition:1.7.2
+pipeline-model-extensions:1.7.2
+pipeline-rest-api:2.19
+pipeline-stage-step:2.5
+pipeline-stage-tags-metadata:1.7.2
+pipeline-stage-view:2.19
+plain-credentials:1.7
+plugin-util-api:1.6.1
+popper-api:1.16.0-7
+rebuild:1.31
+role-strategy:3.1
+scm-api:2.6.4
+script-security:1.75
+snakeyaml-api:1.27.0
+soapui-pro-functional-testing:1.6
+sonar:2.13
+ssh-credentials:1.18.1
+structs:1.20
+token-macro:2.14
+trilead-api:1.0.13
+uno-choice:2.5.1
+variant:1.4
+workflow-aggregator:2.6
+workflow-api:2.40
+workflow-cps-global-lib:2.17
+workflow-cps:2.87
+workflow-durable-task-step:2.37
+workflow-job:2.40
+workflow-multibranch:2.22
+workflow-scm-step:2.11
+workflow-step-api:2.23
+workflow-support:3.7
+parameterized-scheduler:0.9.2
+buildtriggerbadge:2.10
+simple-theme-plugin:0.6
+disk-usage:0.28
+greenballs:1.15.1
+text-finder:1.15
+)
+
+for plugin in "${plugins[@]}"
+do
+  echo "Installing ${plugin}"
+  jenkins-plugin-cli --plugins ${plugin}
+done
+
+```
+
+You can see the multipipeline job now created below
+
+![hello 2](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/e284f7cb-52aa-4c60-9dca-0c1428899446)
+
+All the branches have automatically triggered their respective pipelines
+
+![hello 3](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/2a960bcd-e4fd-4c8e-aa5c-0552b58ee453)
+
+This implementation is ideal, and gives the confidence of a re-usable code and infrastructure, should anything go wrong, you can easily recreate all you have configured. 
+
+You should also explore the JCasC section and see all the configured credentials and pipelines. 
+
+![hello 4](https://github.com/Mirahkeyz/Darey.io-Projects/assets/134533695/fe435479-cac4-4d2d-abbf-3b389b392bea)
+
+You can now create more secrets to connect to other tools such as, SONARQUBE, AWS, KUBECONFIG etc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
